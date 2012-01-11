@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B97038C14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */; };
+		8B97038D14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */; };
 		AB3A308A148F099C00D06246 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB3A3089148F099C00D06246 /* Security.framework */; };
 		AB3A3098148F0A3B00D06246 /* NSDate+RFC1123.h in Headers */ = {isa = PBXBuildFile; fileRef = AB3A3096148F0A3B00D06246 /* NSDate+RFC1123.h */; };
 		AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = AB3A3097148F0A3B00D06246 /* NSDate+RFC1123.m */; };
@@ -31,6 +33,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+CaseInsensitive.h"; sourceTree = "<group>"; };
+		8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+CaseInsensitive.m"; sourceTree = "<group>"; };
 		AB3A3089148F099C00D06246 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		AB3A3096148F0A3B00D06246 /* NSDate+RFC1123.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+RFC1123.h"; sourceTree = "<group>"; };
 		AB3A3097148F0A3B00D06246 /* NSDate+RFC1123.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+RFC1123.m"; sourceTree = "<group>"; };
@@ -131,6 +135,8 @@
 				ABDC97451498A6DE0034CEBE /* NSData+Base64.m */,
 				ABB5C2AA148B3B360056D3E9 /* NSDictionary+RequestEncoding.h */,
 				ABB5C2AB148B3B360056D3E9 /* NSDictionary+RequestEncoding.m */,
+				8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */,
+				8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */,
 				ABB5C2AC148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.h */,
 				ABB5C2AD148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.m */,
 				ABB5C2AE148B3B360056D3E9 /* UIAlertView+MKNetworkKitAdditions.h */,
@@ -174,6 +180,7 @@
 				ABB5C2C4148B3B360056D3E9 /* Reachability.h in Headers */,
 				AB3A3098148F0A3B00D06246 /* NSDate+RFC1123.h in Headers */,
 				ABDC97461498A6DE0034CEBE /* NSData+Base64.h in Headers */,
+				8B97038C14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +243,7 @@
 				ABB5C2C5148B3B360056D3E9 /* Reachability.m in Sources */,
 				AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */,
 				ABDC97471498A6DE0034CEBE /* NSData+Base64.m in Sources */,
+				8B97038D14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
