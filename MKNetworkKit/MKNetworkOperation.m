@@ -1353,6 +1353,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
     CGColorSpaceRelease(colorSpace);
     if (!context) {
       DLog(@"Image decompression failed. Context is nil. Could happen if your image view size is CGSizeZero");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            imageDecompressionHandler(nil);
+        });
       return;
     }
     
