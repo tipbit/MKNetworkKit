@@ -78,10 +78,6 @@ typedef enum {
   MKNKPostDataEncodingType _postDataEncoding;
 }
 
-@property (strong, nonatomic) NSURLConnection *connection;
-@property (strong, nonatomic) NSMutableURLRequest *request;
-@property (strong, nonatomic) NSHTTPURLResponse *response;
-
 /*!
  *  @abstract Request URL Property
  *  @property url
@@ -647,12 +643,6 @@ typedef enum {
  *
  */
 -(void) operationFailedWithError:(NSError*) error;
-
--(NSURLRequest *) connection: (NSURLConnection *)inConnection
-             willSendRequest: (NSURLRequest *)inRequest
-            redirectResponse: (NSURLResponse *)inRedirectResponse;
-
--(void) connectionDidFinishLoading:(NSURLConnection *)connection;
 
 // internal methods called by MKNetworkEngine only.
 // Don't touch

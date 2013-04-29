@@ -45,7 +45,10 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
                                  CFStringRef keyPassword);
 
 @interface MKNetworkOperation (/*Private Methods*/)
+@property (strong, nonatomic) NSURLConnection *connection;
 @property (copy, nonatomic) NSString *uniqueId;
+@property (strong, nonatomic) NSMutableURLRequest *request;
+@property (strong, nonatomic) NSHTTPURLResponse *response;
 
 @property (strong, nonatomic) NSMutableDictionary *fieldsToBePosted;
 @property (strong, nonatomic) NSMutableArray *filesToBePosted;
