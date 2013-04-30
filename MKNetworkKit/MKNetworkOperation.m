@@ -64,6 +64,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 @property (nonatomic, assign) MKNetworkOperationState state;
 @property (nonatomic, assign) BOOL isCancelled;
 
+@property (strong, nonatomic) NSMutableData *mutableRawData;
 @property (strong, nonatomic) NSMutableData *mutableData;
 @property (assign, nonatomic) NSUInteger downloadedDataSize;
 
@@ -683,6 +684,16 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   return displayString;
 }
 
+-(void)addRawData:(NSData *)data {
+    if ([self.request.HTTPMethod isEqualToString:@"GET"]) {
+      [self.request setHTTPMethod:@"POST"];
+    }
+    if (!self.mutableRawData) {
+        self.mutableRawData = [NSMutableData data];
+    }
+    [self.mutableRawData appendData:data];
+}
+
 
 -(void) addData:(NSData*) data forKey:(NSString*) key {
   
@@ -722,6 +733,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 }
 
 -(NSData*) bodyData {
+    if (self.mutableRawData) {
+        return self.mutableRawData;
+    }
   
   if([self.filesToBePosted count] == 0 && [self.dataToBePosted count] == 0) {
     

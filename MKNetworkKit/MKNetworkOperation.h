@@ -405,6 +405,16 @@ typedef enum {
 -(void) addFile:(NSString*) filePath forKey:(NSString*) key mimeType:(NSString*) mimeType;
 
 /*!
+ *  @abstract Attach raw data to a request for uploads without a mime
+ * 
+ *  @discussion
+ *  This method lets you attach binary data to a request and have only that data uploaded.
+ *  This method has a side effect. It chages the HTTPMethod to "POST" regardless of what it was before.
+ */
+
+-(void)addRawData:(NSData *)data;
+
+/*!
  *  @abstract Attaches a resource to the request from a NSData pointer
  *  
  *  @discussion
