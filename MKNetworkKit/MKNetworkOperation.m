@@ -24,6 +24,7 @@
 //  THE SOFTWARE.
 
 #import "MKNetworkKit.h"
+#import "NSDictionary+CaseInsensitive.h"
 
 #ifdef __OBJC_GC__
 #error MKNetworkKit does not support Objective-C Garbage Collection
@@ -1132,7 +1133,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
   for(NSOutputStream *stream in self.downloadStreams)
     [stream open];
   
-  NSDictionary *httpHeaders = [self.response allHeaderFields];
+  NSDictionary *httpHeaders = [NSDictionary dictionaryWithDictionaryCaseInsensitive:[self.response allHeaderFields]];
   
   // if you attach a stream to the operation, MKNetworkKit will not cache the response.
   // Streams are usually "big data chunks" that doesn't need caching anyways.
