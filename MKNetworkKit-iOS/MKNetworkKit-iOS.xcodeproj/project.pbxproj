@@ -212,26 +212,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		ABB5C25A148B3AE00056D3E9 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				ABB5C2B9148B3B360056D3E9 /* NSDictionary+RequestEncoding.h in Headers */,
-				ABB5C2BB148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.h in Headers */,
-				ABB5C2BD148B3B360056D3E9 /* UIAlertView+MKNetworkKitAdditions.h in Headers */,
-				ABB5C2BF148B3B360056D3E9 /* MKNetworkEngine.h in Headers */,
-				ABB5C2C1148B3B360056D3E9 /* MKNetworkKit.h in Headers */,
-				ABB5C2C2148B3B360056D3E9 /* MKNetworkOperation.h in Headers */,
-				ABB5C2C4148B3B360056D3E9 /* Reachability.h in Headers */,
-				AB3A3098148F0A3B00D06246 /* NSDate+RFC1123.h in Headers */,
-				ABDC97461498A6DE0034CEBE /* NSData+Base64.h in Headers */,
-				8B97038C14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		ABB5C25B148B3AE00056D3E9 /* MKNetworkKit-iOS */ = {
 			isa = PBXNativeTarget;
