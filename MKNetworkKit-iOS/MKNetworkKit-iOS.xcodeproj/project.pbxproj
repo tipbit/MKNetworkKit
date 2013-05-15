@@ -264,7 +264,6 @@
 				AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */,
 				ABE5A860165B5A34001F93EF /* NSData+MKBase64.m in Sources */,
 				ABFC7C8D16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.m in Sources */,
-				ABDC97471498A6DE0034CEBE /* NSData+Base64.m in Sources */,
 				8B97038D14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
