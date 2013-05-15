@@ -197,17 +197,9 @@
 			children = (
 				ABB5C2B6148B3B360056D3E9 /* Reachability.h */,
 				ABB5C2B7148B3B360056D3E9 /* Reachability.m */,
-				ABB5C2B8148B3B360056D3E9 /* Reachability_h */,
 			);
 			name = Reachability;
 			path = ../../MKNetworkKit/Reachability;
-			sourceTree = "<group>";
-		};
-		ABB5C2B8148B3B360056D3E9 /* Reachability_h */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Reachability_h;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
