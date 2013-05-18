@@ -997,14 +997,8 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
   
-  self.state = MKNetworkOperationStateFinished;
-  self.mutableData = nil;
-  self.downloadedDataSize = 0;
-  for(NSOutputStream *stream in self.downloadStreams)
-    [stream close];
-  
+  [self updateStateForFinishedConnection:connection clearData:YES];
   [self operationFailedWithError:error];
-  [self endBackgroundTask];
 }
 
 // https://developer.apple.com/library/mac/#documentation/security/conceptual/CertKeyTrustProgGuide/iPhone_Tasks/iPhone_Tasks.html
@@ -1320,11 +1314,25 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   if([self isCancelled])
     return;
   
+  [self updateStateForFinishedConnection:connection clearData:NO];
+  [self sendNotificationsForFinishedConnection:connection];
+}
+
+-(void)updateStateForFinishedConnection:(NSURLConnection *)connection clearData:(BOOL)clearData {
   self.state = MKNetworkOperationStateFinished;
   
   for(NSOutputStream *stream in self.downloadStreams)
     [stream close];
   
+  if (clearData) {
+    self.mutableData = nil;
+    self.downloadedDataSize = 0;
+  }
+  
+  [self endBackgroundTask];
+}
+
+-(void)sendNotificationsForFinishedConnection:(NSURLConnection *)connection {
   if (self.response.statusCode >= 200 && self.response.statusCode < 300 && ![self isCancelled]) {
     
     self.cachedResponse = nil; // remove cached data
@@ -1358,8 +1366,6 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
                                                        code:self.response.statusCode
                                                    userInfo:self.response.allHeaderFields]];
   }
-  [self endBackgroundTask];
-  
 }
 
 #pragma mark -
@@ -1383,6 +1389,14 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
 -(NSString*) responseStringWithEncoding:(NSStringEncoding) encoding {
   
   return [[NSString alloc] initWithData:[self responseData] encoding:encoding];
+}
+
+-(void) setResponseData:(NSData*)data {
+  self.mutableData = [data mutableCopy];
+}
+
+-(void)setResponseJSON:(id)obj error:(NSError**)error {
+  [self setResponseData:[NSJSONSerialization dataWithJSONObject:obj options:0 error:error]];
 }
 
 #if TARGET_OS_IPHONE

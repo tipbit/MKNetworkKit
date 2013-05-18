@@ -699,4 +699,17 @@ typedef enum {
 - (id)initWithURLString:(NSString *)aURLString
                  params:(NSDictionary *)params
              httpMethod:(NSString *)method;
+
+
+// These methods are available for subclasses to override the way that
+// this class handles connection:didFailWithError: and connectionDidFinishLoading:.
+// You are not likely to need to call them from outside this class.
+
+-(void) setResponseData:(NSData*)data;
+-(void) setResponseJSON:(id)obj error:(NSError**)error;
+
+-(void)updateStateForFinishedConnection:(NSURLConnection *)connection clearData:(BOOL)clearData;
+-(void)sendNotificationsForFinishedConnection:(NSURLConnection *)connection;
+
+
 @end
