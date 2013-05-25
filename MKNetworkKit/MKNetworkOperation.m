@@ -26,6 +26,8 @@
 #import "MKNetworkKit.h"
 #import "NSDictionary+CaseInsensitive.h"
 
+#import <ImageIO/ImageIO.h>
+
 #ifdef __OBJC_GC__
 #error MKNetworkKit does not support Objective-C Garbage Collection
 #endif
@@ -1103,8 +1105,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
         SecTrustEvaluate(self.serverTrust, &result);
         
         if(result == kSecTrustResultProceed ||
-           result == kSecTrustResultUnspecified || //The cert is valid, but user has not explicitly accepted/denied. Ok to proceed (Ch 15: iOS PTL :Pg 269)
-           result == kSecTrustResultRecoverableTrustFailure //The cert is invalid, but is invalid because of name mismatch. Ok to proceed (Ch 15: iOS PTL :Pg 269)
+           result == kSecTrustResultUnspecified //The cert is valid, but user has not explicitly accepted/denied. Ok to proceed (Ch 15: iOS PTL :Pg 269)
            ) {
           
           [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
@@ -1407,49 +1408,14 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
 
 -(void) decompressedResponseImageOfSize:(CGSize) size completionHandler:(void (^)(UIImage *decompressedImage)) imageDecompressionHandler {
   
-  static float scale = 1.0f;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    scale = [[UIScreen mainScreen] scale];
-  });
-  
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-    
-    __block CGSize targetSize = CGSizeMake(size.width * scale, size.height * scale);
-    UIImage *image = [self responseImage];
-    CGImageRef imageRef = image.CGImage;
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
 
-    size_t imageWidth = (size_t)targetSize.width;
-    size_t imageHeight = (size_t)targetSize.height;
-    CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 imageWidth,
-                                                 imageHeight,
-                                                 8,
-                                                 // Just always return width * 4 will be enough
-                                                 imageWidth * 4,
-                                                 // System only supports RGB, set explicitly
-                                                 colorSpace,
-                                                 // Makes system don't need to do extra conversion when displayed.
-                                                 alphaInfo | kCGBitmapByteOrder32Little);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) {
-      DLog(@"Image decompression failed. Context is nil. Could happen if your image view size is CGSizeZero");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            imageDecompressionHandler(nil);
-        });
-      return;
-    }
-    
-    
-    CGRect rect = (CGRect){CGPointZero, {imageWidth, imageHeight}};
-    CGContextDrawImage(context, rect, imageRef);
-    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-        
-    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef scale:scale orientation:image.imageOrientation];
-    CGImageRelease(decompressedImageRef);
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)([self responseData]), NULL);
+    CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, (__bridge CFDictionaryRef)(@{(id)kCGImageSourceShouldCache:@(YES)}));
+    UIImage *decompressedImage = [UIImage imageWithCGImage:cgImage];
+    CFRelease(source);
+    CGImageRelease(cgImage);
+
     dispatch_async(dispatch_get_main_queue(), ^{
       imageDecompressionHandler(decompressedImage);
     });
