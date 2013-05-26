@@ -708,6 +708,13 @@ typedef enum {
 -(void) setResponseData:(NSData*)data;
 -(void) setResponseJSON:(id)obj error:(NSError**)error;
 
+/*!
+ @abstract Set the response status code and headers.
+ @discussion This is useful if a subclass wants to manipulate the response, e.g. for mocking or fault injection.
+ Note that NSHTTPURLResponse is immutable, so this actually replaces self.response with a new instance.
+ */
+-(void) setResponseStatusCode:(NSInteger)statusCode andHeaderFields:(NSDictionary*)headerFields;
+
 -(void)updateStateForFinishedConnection:(NSURLConnection *)connection clearData:(BOOL)clearData;
 -(void)sendNotificationsForFinishedConnection:(NSURLConnection *)connection;
 

@@ -1400,6 +1400,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   [self setResponseData:[NSJSONSerialization dataWithJSONObject:obj options:0 error:error]];
 }
 
+-(void)setResponseStatusCode:(NSInteger)statusCode andHeaderFields:(NSDictionary*)headerFields {
+    self.response = [[NSHTTPURLResponse alloc] initWithURL:self.response.URL statusCode:statusCode HTTPVersion:@"HTTP/1.1" headerFields:headerFields];
+}
+
+
 #if TARGET_OS_IPHONE
 -(UIImage*) responseImage {
   
