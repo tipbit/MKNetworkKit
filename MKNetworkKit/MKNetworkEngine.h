@@ -406,6 +406,15 @@
 -(void) emptyCache;
 
 /*!
+ *  @abstract Returns previously cached data
+ *
+ *  @discussion
+ *  This method returns the contents of the cache, for the specified operation.
+ *  It returns nil if no matching entry is in the cache.
+ */
+-(NSData*) cachedDataForOperation:(MKNetworkOperation*) operation;
+
+/*!
  *  @abstract Checks current reachable status
  *  
  *  @discussion
