@@ -55,7 +55,7 @@ static CFHashCode caseInsensitiveHash (const void *value)
         [(__bridge NSMutableDictionary *)dest setObject:value forKey:key];
     }
     
-    return (__bridge NSDictionary *)dest;
+    return (__bridge_transfer NSDictionary *)dest;
 }
 
 + (id)dictionaryWithDictionaryCaseInsensitive:(NSDictionary *)dictionary
