@@ -446,6 +446,44 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   return theCopy;
 }
 
+
+- (id)mutableCopyWithZone:(NSZone *)zone
+{
+  MKNetworkOperation *theCopy = [[[self class] allocWithZone:zone] init];  // use designated initializer
+  
+  theCopy.postDataEncoding = _postDataEncoding;
+  [theCopy setStringEncoding:self.stringEncoding];
+  [theCopy setUniqueId:[self.uniqueId copy]];
+  
+  [theCopy setConnection:[self.connection mutableCopy]];
+  [theCopy setRequest:[self.request mutableCopy]];
+  [theCopy setResponse:[self.response mutableCopy]];
+  [theCopy setFieldsToBePosted:[self.fieldsToBePosted mutableCopy]];
+  [theCopy setFilesToBePosted:[self.filesToBePosted mutableCopy]];
+  [theCopy setDataToBePosted:[self.dataToBePosted mutableCopy]];
+  [theCopy setUsername:[self.username copy]];
+  [theCopy setPassword:[self.password copy]];
+  [theCopy setClientCertificate:[self.clientCertificate copy]];
+  [theCopy setClientCertificatePassword:[self.clientCertificatePassword copy]];
+  [theCopy setResponseBlocks:[self.responseBlocks mutableCopy]];
+  [theCopy setErrorBlocks:[self.errorBlocks mutableCopy]];
+  [theCopy setErrorBlocksType2:[self.errorBlocksType2 mutableCopy]];
+  [theCopy setState:self.state];
+  [theCopy setIsCancelled:self.isCancelled];
+  [theCopy setMutableData:[self.mutableData mutableCopy]];
+  [theCopy setDownloadedDataSize:self.downloadedDataSize];
+  [theCopy setNotModifiedHandlers:[self.notModifiedHandlers mutableCopy]];
+  [theCopy setUploadProgressChangedHandlers:[self.uploadProgressChangedHandlers mutableCopy]];
+  [theCopy setDownloadProgressChangedHandlers:[self.downloadProgressChangedHandlers mutableCopy]];
+  [theCopy setDownloadStreams:[self.downloadStreams mutableCopy]];
+  [theCopy setCachedResponse:[self.cachedResponse mutableCopy]];
+  [theCopy setCacheHandlingBlock:self.cacheHandlingBlock];
+  [theCopy setStartPosition:self.startPosition];
+  [theCopy setCredentialPersistence:self.credentialPersistence];
+  
+  return theCopy;
+}
+
 - (instancetype)copyForRetry
 {
     MKNetworkOperation *theCopy = [[[self class] alloc] init];
@@ -1117,6 +1155,10 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
             // Cert not trusted, but user is OK with that
             DLog(@"Certificate is not trusted, but self.shouldContinueWithInvalidCertificate is YES");
             [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+          } else if (self.serverTrustDelegate != nil) {
+
+            DLog(@"Certificate is not trusted, calling self.serverTrustDelegate to proceed.");
+            [self.serverTrustDelegate handleServerCertificate:self challenge:challenge trustRef:self.serverTrust trustResult:result];
           } else {
             
             DLog(@"Certificate is not trusted, continuing without credentials. Might result in 401 Unauthorized");
@@ -1129,6 +1171,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
           if(self.shouldContinueWithInvalidCertificate) {
             DLog(@"Certificate is invalid, but self.shouldContinueWithInvalidCertificate is YES");
             [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+          } else if (self.serverTrustDelegate != nil) {
+            DLog(@"Certificate is invalid, calling self.serverTrustDelegate to proceed.");
+            [self.serverTrustDelegate handleServerCertificate:self challenge:challenge trustRef:self.serverTrust trustResult:result];
           } else {
             DLog(@"Certificate is invalid, continuing without credentials. Might result in 401 Unauthorized");
             [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
