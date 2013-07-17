@@ -1146,6 +1146,10 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
             // Cert not trusted, but user is OK with that
             DLog(@"Certificate is not trusted, but self.shouldContinueWithInvalidCertificate is YES");
             [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+          } else if (self.serverTrustDelegate != nil) {
+
+            DLog(@"Certificate is not trusted, calling self.serverTrustDelegate to proceed.");
+            [self.serverTrustDelegate handleServerCertificate:self challenge:challenge trustRef:self.serverTrust trustResult:result];
           } else {
             
             DLog(@"Certificate is not trusted, continuing without credentials. Might result in 401 Unauthorized");
@@ -1158,6 +1162,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
           if(self.shouldContinueWithInvalidCertificate) {
             DLog(@"Certificate is invalid, but self.shouldContinueWithInvalidCertificate is YES");
             [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+          } else if (self.serverTrustDelegate != nil) {
+            DLog(@"Certificate is invalid, calling self.serverTrustDelegate to proceed.");
+            [self.serverTrustDelegate handleServerCertificate:self challenge:challenge trustRef:self.serverTrust trustResult:result];
           } else {
             DLog(@"Certificate is invalid, continuing without credentials. Might result in 401 Unauthorized");
             [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];

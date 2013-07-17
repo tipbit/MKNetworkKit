@@ -54,6 +54,36 @@ typedef enum {
   MKNKPostDataEncodingTypePlist,
   MKNKPostDataEncodingTypeCustom
 } MKNKPostDataEncodingType;
+
+
+@class NSURLAuthenticationChallenge;
+@protocol MKServerTrustDelegate
+
+@required
+
+/*!
+ * @abstract This function is called when a server presents an SSL certificate and the certificate is not
+ * immediately trusted.
+ *
+ * @discussion
+ * This gives you an opportunity to present the certificate to the user for a decision, or however else you
+ * would like to make the trust decision.
+ *
+ * You should call either [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge] or
+ * [challenge.sender useCredential:[NSURLCredential credentialForTrust:trustRef] forAuthenticationChallenge:challenge]
+ * when the decision is made.
+ *
+ * SecTrustEvaluate has already been called on the given trustRef.
+ *
+ * @param trustRef The SecTrustRef object for this challenge (i.e. challenge.protectionSpace.serverTrust).
+ * @param trustResult One of the valid SecTrustResultType values, except for kSecTrustResultProceed and
+ * kSecTrustResultUnspecified.  This is the result from SecTrustEvaluate(trustRef).
+ */
+-(void)handleServerCertificate:(MKNetworkOperation*)op challenge:(NSURLAuthenticationChallenge*)challenge trustRef:(SecTrustRef)trustRef trustResult:(SecTrustResultType)trustResult;
+
+@end
+
+
 /*!
  @header MKNetworkOperation.h
  @abstract   Represents a single unique network operation.
@@ -240,6 +270,15 @@ typedef enum {
  *  The default value is NO. MKNetworkKit will not run an operation with a server that is not trusted.
  */
 @property (nonatomic, assign) BOOL shouldContinueWithInvalidCertificate;
+
+/*!
+ * @abstract A delegate used when a server presents an SSL certificate and the certificate is not immediately trusted.
+ *
+ * @discussion
+ * See MKServerTrustDelegate for more details.  self.shouldContinueWithInvalidCertificate takes precedence over serverTrustDelegate.
+ * If this is nil, then any invalid or untrusted certificate is rejected.
+ */
+@property (nonatomic, weak) id<MKServerTrustDelegate> serverTrustDelegate;
 
 /*!
  *  @abstract Boolean variable that states whether the request should automatically include an Accept-Language header.
