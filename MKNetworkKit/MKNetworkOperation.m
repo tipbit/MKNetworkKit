@@ -24,6 +24,7 @@
 //  THE SOFTWARE.
 
 #import "MKNetworkKit.h"
+#import "JSONKit.h"
 #import "NSDictionary+CaseInsensitive.h"
 
 #import <ImageIO/ImageIO.h>
@@ -1442,7 +1443,14 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
 }
 
 -(void)setResponseJSON:(id)obj error:(NSError**)error {
-  [self setResponseData:[NSJSONSerialization dataWithJSONObject:obj options:0 error:error]];
+    if ([obj isMemberOfClass:[NSDictionary class]])
+        [self setResponseData:[(NSDictionary*)obj JSONData]];
+    else if ([obj isMemberOfClass:[NSArray class]])
+        [self setResponseData:[(NSArray*)obj JSONData]];
+    else if ([obj isMemberOfClass:[NSString class]])
+        [self setResponseData:[(NSString*)obj JSONData]];
+    else
+        NSAssert(false, @"Unknown type for JSONKit serialization");
 }
 
 -(void)setResponseStatusCode:(NSInteger)statusCode andHeaderFields:(NSDictionary*)headerFields {
@@ -1490,7 +1498,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   
   if([self responseData] == nil) return nil;
   NSError *error = nil;
-  id returnValue = [NSJSONSerialization JSONObjectWithData:[self responseData] options:0 error:&error];
+
+  id returnValue = [[self responseData] objectFromJSONDataWithParseOptions:0 error:&error];
+
   if(error) DLog(@"JSON Parsing Error: %@", error);
   return returnValue;
 }
@@ -1511,7 +1521,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
     
     NSError *error = nil;
-    id returnValue = [NSJSONSerialization JSONObjectWithData:[self responseData] options:options error:&error];
+    id returnValue = [[self responseData] objectFromJSONDataWithParseOptions:0 error:&error];
     if(error) {
       
       DLog(@"JSON Parsing Error: %@", error);
