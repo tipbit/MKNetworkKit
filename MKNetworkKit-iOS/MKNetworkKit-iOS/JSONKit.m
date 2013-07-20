@@ -1,4 +1,4 @@
-#ifndef DEBUG
+
 //
 //  JSONKit.m
 //  http://github.com/johnezang/JSONKit
@@ -3064,4 +3064,3 @@ errorExit:
 
 #endif // __BLOCKS__
 
-#endif
