@@ -1443,11 +1443,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
 }
 
 -(void)setResponseJSON:(id)obj error:(NSError**)error {
-    if ([obj isMemberOfClass:[NSDictionary class]])
+    if ([obj isKindOfClass:[NSDictionary class]])
         [self setResponseData:[(NSDictionary*)obj JSONData]];
-    else if ([obj isMemberOfClass:[NSArray class]])
+    else if ([obj isKindOfClass:[NSArray class]])
         [self setResponseData:[(NSArray*)obj JSONData]];
-    else if ([obj isMemberOfClass:[NSString class]])
+    else if ([obj isKindOfClass:[NSString class]])
         [self setResponseData:[(NSString*)obj JSONData]];
     else
         NSAssert(false, @"Unknown type for JSONKit serialization");
