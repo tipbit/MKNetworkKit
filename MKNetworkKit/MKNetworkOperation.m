@@ -1149,8 +1149,11 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
           
           [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
         }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+          // kSecTrustResultConfirm is deprecated and not used in newer SDKs.  Leaving this code for older SDKs for now.
         else if(result == kSecTrustResultConfirm) {
-          
+#pragma clang diagnostic pop
           if(self.shouldContinueWithInvalidCertificate) {
             
             // Cert not trusted, but user is OK with that
