@@ -547,6 +547,7 @@ static NSOperationQueue *_sharedNetworkQueue;
   } errorHandler:^(MKNetworkOperation *completedOperation, NSError *error) {
       if (errorBlock)
           errorBlock(completedOperation, error);
+      DLog(@"%@", error);
   }];
   
   [self enqueueOperation:op];
