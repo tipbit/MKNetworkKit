@@ -592,14 +592,14 @@ static NSOperationQueue *_sharedNetworkQueue;
 
 - (MKNetworkOperation*)imageAtURL:(NSURL *)url size:(CGSize) size onCompletion:(MKNKImageBlock) imageFetchedBlock {
   
-  return [self imageAtURL:url size:size completionHandler:imageFetchedBlock errorHandler:^(MKNetworkOperation* op, NSError* error){}];
+  return [self imageAtURL:url size:size completionHandler:imageFetchedBlock errorHandler:NULL];
 }
 
 #endif
 
 - (MKNetworkOperation*)imageAtURL:(NSURL *)url onCompletion:(MKNKImageBlock) imageFetchedBlock
 {
-  return [self imageAtURL:url completionHandler:imageFetchedBlock errorHandler:^(MKNetworkOperation* op, NSError* error){}];
+  return [self imageAtURL:url completionHandler:imageFetchedBlock errorHandler:NULL];
 }
 
 
