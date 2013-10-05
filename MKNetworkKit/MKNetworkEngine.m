@@ -303,7 +303,12 @@ static NSOperationQueue *_sharedNetworkQueue;
   for(NSString *pendingOperationFile in pendingOperations) {
     
     NSString *archivePath = [[self cacheDirectoryName] stringByAppendingPathComponent:pendingOperationFile];
-    MKNetworkOperation *pendingOperation = [NSKeyedUnarchiver unarchiveObjectWithFile:archivePath];
+    id obj = [NSKeyedUnarchiver unarchiveObjectWithFile:archivePath];
+    if (![obj isKindOfClass:[MKNetworkOperation class]]) {
+      NSLog(@"Expected an MKNetworkOperation when unarchiving.  Got a %@ instead!", obj);
+      return;
+    }
+    MKNetworkOperation *pendingOperation = obj;
     [self enqueueOperation:pendingOperation];
     NSError *error2 = nil;
     [[NSFileManager defaultManager] removeItemAtPath:archivePath error:&error2];
