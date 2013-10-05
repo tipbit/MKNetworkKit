@@ -829,6 +829,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   
   NSString *boundary = @"0xKhTmLbOuNdArY";
   NSMutableData *body = [NSMutableData data];
+  NSStringEncoding encoding = self.stringEncoding;
   __block NSUInteger postLength = 0;
   
   [self.fieldsToBePosted enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -837,8 +838,8 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
                                  @"--%@\r\nContent-Disposition: form-data; name=\"%@\"\r\n\r\n%@",
                                  boundary, key, obj];
     
-    [body appendData:[thisFieldString dataUsingEncoding:[self stringEncoding]]];
-    [body appendData:[@"\r\n" dataUsingEncoding:[self stringEncoding]]];
+    [body appendData:[thisFieldString dataUsingEncoding:encoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:encoding]];
   }];
   
   [self.filesToBePosted enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -851,9 +852,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
                                  [thisFile[@"filepath"] lastPathComponent],
                                  thisFile[@"mimetype"]];
     
-    [body appendData:[thisFieldString dataUsingEncoding:[self stringEncoding]]];
+    [body appendData:[thisFieldString dataUsingEncoding:encoding]];
     [body appendData: [NSData dataWithContentsOfFile:thisFile[@"filepath"]]];
-    [body appendData:[@"\r\n" dataUsingEncoding:[self stringEncoding]]];
+    [body appendData:[@"\r\n" dataUsingEncoding:encoding]];
   }];
   
   [self.dataToBePosted enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -866,9 +867,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
                                  thisDataObject[@"filename"],
                                  thisDataObject[@"mimetype"]];
     
-    [body appendData:[thisFieldString dataUsingEncoding:[self stringEncoding]]];
+    [body appendData:[thisFieldString dataUsingEncoding:encoding]];
     [body appendData:thisDataObject[@"data"]];
-    [body appendData:[@"\r\n" dataUsingEncoding:[self stringEncoding]]];
+    [body appendData:[@"\r\n" dataUsingEncoding:encoding]];
   }];
   
   if (postLength >= 1)
