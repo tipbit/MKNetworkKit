@@ -128,6 +128,7 @@
 				ABB5C25E148B3AE00056D3E9 /* Frameworks */,
 				ABB5C25D148B3AE00056D3E9 /* Products */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
 		};
 		ABB5C25D148B3AE00056D3E9 /* Products */ = {
