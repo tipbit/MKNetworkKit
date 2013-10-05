@@ -685,8 +685,9 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 
 -(void) addHeaders:(NSDictionary*) headersDictionary {
   
+  MKNetworkOperation* __weak weakSelf = self;
   [headersDictionary enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-    [self.request addValue:obj forHTTPHeaderField:key];
+    [weakSelf.request addValue:obj forHTTPHeaderField:key];
   }];
 }
 
@@ -907,10 +908,14 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 -(void) endBackgroundTask {
   
 #if TARGET_OS_IPHONE
+  MKNetworkOperation* __weak weakSelf = self;
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+    MKNetworkOperation* myself = weakSelf;
+    if (myself == nil)
+      return;
+    if (myself.backgroundTaskId != UIBackgroundTaskInvalid) {
       [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-      self.backgroundTaskId = UIBackgroundTaskInvalid;
+      myself.backgroundTaskId = UIBackgroundTaskInvalid;
     }
   });
 #endif
@@ -919,15 +924,20 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 - (void) start
 {
   
+  MKNetworkOperation* __weak weakSelf = self;
+
 #if TARGET_OS_IPHONE
   self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
     
     dispatch_async(dispatch_get_main_queue(), ^{
-      if (self.backgroundTaskId != UIBackgroundTaskInvalid)
+      MKNetworkOperation* myself = weakSelf;
+      if (myself == nil)
+        return;
+      if (myself.backgroundTaskId != UIBackgroundTaskInvalid)
       {
         [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-        [self cancel];
+        myself.backgroundTaskId = UIBackgroundTaskInvalid;
+        [myself cancel];
       }
     });
   }];
@@ -944,14 +954,15 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-      self.connection = [[NSURLConnection alloc] initWithRequest:self.request
-                                                        delegate:self
-                                                startImmediately:NO];
-      
-      [self.connection scheduleInRunLoop:[NSRunLoop currentRunLoop]
-                                 forMode:NSRunLoopCommonModes];
-      
-      [self.connection start];
+      MKNetworkOperation* myself = weakSelf;
+      myself.connection = [[NSURLConnection alloc] initWithRequest:myself.request
+                                                          delegate:myself
+                                                  startImmediately:NO];
+
+      [myself.connection scheduleInRunLoop:[NSRunLoop currentRunLoop]
+                                   forMode:NSRunLoopCommonModes];
+
+      [myself.connection start];
     });
     
     self.state = MKNetworkOperationStateExecuting;
@@ -1469,10 +1480,14 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
 }
 
 -(void) decompressedResponseImageOfSize:(CGSize) size completionHandler:(void (^)(UIImage *decompressedImage)) imageDecompressionHandler {
-  
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 
-    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)([self responseData]), NULL);
+  MKNetworkOperation* __weak weakSelf = self;
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+    MKNetworkOperation* myself = weakSelf;
+    if (myself == nil)
+      return;
+
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)([myself responseData]), NULL);
     CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, (__bridge CFDictionaryRef)(@{(id)kCGImageSourceShouldCache:@(YES)}));
     UIImage *decompressedImage = [UIImage imageWithCGImage:cgImage];
     if(source)
@@ -1521,11 +1536,15 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
     jsonDecompressionHandler(nil);
     return;
   }
-  
+
+  MKNetworkOperation* __weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-    
+    MKNetworkOperation* myself = weakSelf;
+    if (myself == nil)
+      return;
+
     NSError *error = nil;
-    id returnValue = [[self responseData] objectFromJSONDataWithParseOptions:0 error:&error];
+    id returnValue = [[myself responseData] objectFromJSONDataWithParseOptions:0 error:&error];
     if(error) {
       
       DLog(@"JSON Parsing Error: %@", error);
