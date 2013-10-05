@@ -115,11 +115,12 @@ static NSOperationQueue *_sharedNetworkQueue;
                                                  object:nil];
       
       self.hostName = hostName;
-      self.reachability = [Reachability reachabilityWithHostname:self.hostName];
-      
+      Reachability* reachability = [Reachability reachabilityWithHostname:self.hostName];
+      self.reachability = reachability;
+
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        [self.reachability startNotifier];
+        [reachability startNotifier];
       });
     }
     
@@ -435,86 +436,91 @@ static NSOperationQueue *_sharedNetworkQueue;
   NSParameterAssert(operation != nil);
   if(operation == nil) return;
   
+  MKNetworkEngine* __weak weakSelf = self;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    
-    
-     __weak id weakSelf = self;
-    
-    
-    [operation setCacheHandler:^(MKNetworkOperation* completedCacheableOperation) {
-      
-      // if this is not called, the request would have been a non cacheable request
-      //completedCacheableOperation.cacheHeaders;
-      NSString *uniqueId = [completedCacheableOperation uniqueIdentifier];
-      [weakSelf saveCacheData:[completedCacheableOperation responseData]
-                   forKey:uniqueId];
-      
-      ([weakSelf cacheInvalidationParams])[uniqueId] = completedCacheableOperation.cacheHeaders;
-    }];
-    
-    __block double expiryTimeInSeconds = 0.0f;
-    
-    if([operation isCacheable]) {
-      
-      NSData *cachedData = [self cachedDataForOperation:operation];
-      if(cachedData) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          // Jump back to the original thread here since setCachedData updates the main thread
-          [operation setCachedData:cachedData];
-        });
-        
-        if(!forceReload) {
-          
-          NSString *uniqueId = [operation uniqueIdentifier];
-          NSMutableDictionary *savedCacheHeaders = (self.cacheInvalidationParams)[uniqueId];
-          // there is a cached version.
-          // this means, the current operation is a "GET"
-          if(savedCacheHeaders) {
-            NSString *expiresOn = savedCacheHeaders[@"Expires"];
-            
-            dispatch_sync(self.operationQueue, ^{
-              NSDate *expiresOnDate = [NSDate dateFromRFC1123:expiresOn];
-              expiryTimeInSeconds = [expiresOnDate timeIntervalSinceNow];
-            });
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-              
-              [operation updateOperationBasedOnPreviousHeaders:savedCacheHeaders];
-            });
-          }
-        }
-      }
-      
-      dispatch_sync(self.operationQueue, ^{
-        
-        NSArray *operations = _sharedNetworkQueue.operations;
-        NSUInteger index = [operations indexOfObject:operation];
-        BOOL operationFinished = NO;
-        if(index != NSNotFound) {
-          
-          MKNetworkOperation *queuedOperation = (MKNetworkOperation*) (operations)[index];
-          operationFinished = [queuedOperation isFinished];
-          if(!operationFinished) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-              [queuedOperation updateHandlersFromOperation:operation];
-            });
-          }
-        }
-        
-        if(expiryTimeInSeconds <= 0 || forceReload || operationFinished)
-          [_sharedNetworkQueue addOperation:operation];
-        // else don't do anything
-      });
-      
-    } else {
-      
-      [_sharedNetworkQueue addOperation:operation];
-    }
-    
-    if([self.reachability currentReachabilityStatus] == NotReachable)
-      [self freezeOperations];
+      [weakSelf enqueueOperation_:operation forceReload:forceReload];
   });
 }
+
+-(void) enqueueOperation_:(MKNetworkOperation*) operation forceReload:(BOOL) forceReload {
+  MKNetworkEngine* __weak weakSelf = self;
+
+  [operation setCacheHandler:^(MKNetworkOperation* completedCacheableOperation) {
+      
+    // if this is not called, the request would have been a non cacheable request
+    //completedCacheableOperation.cacheHeaders;
+    NSString *uniqueId = [completedCacheableOperation uniqueIdentifier];
+    [weakSelf saveCacheData:[completedCacheableOperation responseData]
+                     forKey:uniqueId];
+      
+    ([weakSelf cacheInvalidationParams])[uniqueId] = completedCacheableOperation.cacheHeaders;
+  }];
+    
+  if([operation isCacheable]) {
+    [self enqueueOperationCacheable:operation forceReload:forceReload];
+  } else {
+    [_sharedNetworkQueue addOperation:operation];
+  }
+    
+  if([self.reachability currentReachabilityStatus] == NotReachable)
+    [self freezeOperations];
+}
+
+
+-(void)enqueueOperationCacheable:(MKNetworkOperation *)operation forceReload:(BOOL)forceReload {
+
+  __block double expiryTimeInSeconds = 0.0f;
+
+  NSData *cachedData = [self cachedDataForOperation:operation];
+  if(cachedData) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Jump back to the original thread here since setCachedData updates the main thread
+        [operation setCachedData:cachedData];
+    });
+
+    if(!forceReload) {
+
+      NSString *uniqueId = [operation uniqueIdentifier];
+      NSMutableDictionary *savedCacheHeaders = (self.cacheInvalidationParams)[uniqueId];
+      // there is a cached version.
+      // this means, the current operation is a "GET"
+      if(savedCacheHeaders) {
+        NSString *expiresOn = savedCacheHeaders[@"Expires"];
+
+        dispatch_sync(self.operationQueue, ^{
+          NSDate *expiresOnDate = [NSDate dateFromRFC1123:expiresOn];
+          expiryTimeInSeconds = [expiresOnDate timeIntervalSinceNow];
+        });
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [operation updateOperationBasedOnPreviousHeaders:savedCacheHeaders];
+        });
+      }
+    }
+  }
+
+  dispatch_sync(self.operationQueue, ^{
+
+    NSArray *operations = _sharedNetworkQueue.operations;
+    NSUInteger index = [operations indexOfObject:operation];
+    BOOL operationFinished = NO;
+    if(index != NSNotFound) {
+
+      MKNetworkOperation *queuedOperation = (MKNetworkOperation*) (operations)[index];
+      operationFinished = [queuedOperation isFinished];
+      if(!operationFinished) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [queuedOperation updateHandlersFromOperation:operation];
+        });
+      }
+    }
+
+    if(expiryTimeInSeconds <= 0 || forceReload || operationFinished)
+      [_sharedNetworkQueue addOperation:operation];
+    // else don't do anything
+  });
+}
+
 
 - (MKNetworkOperation*)imageAtURL:(NSURL *)url completionHandler:(MKNKImageBlock) imageFetchedBlock errorHandler:(MKNKResponseErrorBlock) errorBlock {
  
@@ -642,34 +648,38 @@ static NSOperationQueue *_sharedNetworkQueue;
 
 -(void) saveCacheData:(NSData*) data forKey:(NSString*) cacheDataKey
 {
+  MKNetworkEngine* __weak weakSelf = self;
   dispatch_async(self.backgroundCacheQueue, ^{
-    
-    (self.memoryCache)[cacheDataKey] = data;
-    
-    NSUInteger index = [self.memoryCacheKeys indexOfObject:cacheDataKey];
-    if(index != NSNotFound)
-      [self.memoryCacheKeys removeObjectAtIndex:index];
-    
-    [self.memoryCacheKeys insertObject:cacheDataKey atIndex:0]; // remove it and insert it at start
-    
-    if([self.memoryCacheKeys count] >= (NSUInteger)[self cacheMemoryCost])
-    {
-      NSString *lastKey = [self.memoryCacheKeys lastObject];
-      NSData *data2 = (self.memoryCache)[lastKey];
-      NSString *filePath = [[self cacheDirectoryName] stringByAppendingPathComponent:lastKey];
-      
-      if([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        
-        NSError *error = nil;
-        [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
-        ELog(error);
-      }
-      [data2 writeToFile:filePath atomically:YES];
-      
-      [self.memoryCacheKeys removeLastObject];
-      [self.memoryCache removeObjectForKey:lastKey];
-    }
+    [weakSelf saveCacheDataBackground:data forKey:cacheDataKey];
   });
+}
+
+-(void) saveCacheDataBackground:(NSData*) data forKey:(NSString *)cacheDataKey {
+  (self.memoryCache)[cacheDataKey] = data;
+
+  NSUInteger index = [self.memoryCacheKeys indexOfObject:cacheDataKey];
+  if(index != NSNotFound)
+    [self.memoryCacheKeys removeObjectAtIndex:index];
+
+  [self.memoryCacheKeys insertObject:cacheDataKey atIndex:0]; // remove it and insert it at start
+
+  if([self.memoryCacheKeys count] >= (NSUInteger)[self cacheMemoryCost])
+  {
+    NSString *lastKey = [self.memoryCacheKeys lastObject];
+    NSData *data2 = (self.memoryCache)[lastKey];
+    NSString *filePath = [[self cacheDirectoryName] stringByAppendingPathComponent:lastKey];
+
+    if([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+
+      NSError *error = nil;
+      [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
+      ELog(error);
+    }
+    [data2 writeToFile:filePath atomically:YES];
+
+    [self.memoryCacheKeys removeLastObject];
+    [self.memoryCache removeObjectForKey:lastKey];
+  }
 }
 
 /*
