@@ -955,6 +955,8 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     
     dispatch_async(dispatch_get_main_queue(), ^{
       MKNetworkOperation* myself = weakSelf;
+      if (myself == nil)
+        return;
       myself.connection = [[NSURLConnection alloc] initWithRequest:myself.request
                                                           delegate:myself
                                                   startImmediately:NO];
