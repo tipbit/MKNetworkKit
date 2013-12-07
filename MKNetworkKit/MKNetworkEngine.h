@@ -342,6 +342,8 @@
  */
 @property (copy, nonatomic) NSString* apiPath;
 
+@property (strong, nonatomic) Reachability *reachability;
+
 /*!
  *  @abstract Handler that you implement to monitor reachability changes
  *  @property reachabilityChangedHandler

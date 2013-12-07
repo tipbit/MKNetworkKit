@@ -43,7 +43,6 @@
 @interface MKNetworkEngine (/*Private Methods*/)
 
 @property (copy, nonatomic) NSString *hostName;
-@property (strong, nonatomic) Reachability *reachability;
 @property (copy, nonatomic) NSDictionary *customHeaders;
 @property (assign, nonatomic) Class customOperationSubclass;
 
