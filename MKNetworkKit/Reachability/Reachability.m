@@ -29,6 +29,9 @@
 
 
 NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
+NSString *const kReachabilityFlags = @"kReachabilityFlags";
+NSString *const kReachabilityIsReachable = @"kReachabilityIsReachable";
+NSString *const kReachabilityNetworkStatus = @"kReachabilityNetworkStatus";
 
 @interface Reachability ()
 
@@ -307,9 +310,24 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     return connectionUP;
 }
 
+-(NetworkStatus)networkStatusWithFlags:(SCNetworkReachabilityFlags)flags
+{
+    if([self isReachableWithFlags:flags])
+    {
+        if([self isReachableViaWiFiWithFlags:flags])
+            return ReachableViaWiFi;
+
+#if	TARGET_OS_IPHONE
+        return ReachableViaWWAN;
+#endif
+    }
+
+    return NotReachable;
+}
+
 -(BOOL)isReachable
 {
-    SCNetworkReachabilityFlags flags;  
+    SCNetworkReachabilityFlags flags;
     
     if(!SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags))
         return NO;
@@ -346,23 +364,31 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     
     if(SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags)) 
     {
-        // check we're reachable
-        if((flags & kSCNetworkReachabilityFlagsReachable))
-        {
-#if	TARGET_OS_IPHONE
-            // check we're NOT on WWAN
-            if((flags & kSCNetworkReachabilityFlagsIsWWAN))
-            {
-                return NO;
-            }
-#endif
-            return YES;
-        }
+        return [self isReachableViaWiFiWithFlags:flags];
     }
     
     return NO;
 }
 
+-(BOOL)isReachableViaWiFiWithFlags:(SCNetworkReachabilityFlags)flags
+{
+    // check we're reachable
+    if((flags & kSCNetworkReachabilityFlagsReachable))
+    {
+#if	TARGET_OS_IPHONE
+        // check we're NOT on WWAN
+        if((flags & kSCNetworkReachabilityFlagsIsWWAN))
+        {
+            return NO;
+        }
+#endif
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
 
 // WWAN may be available, but not active until a connection has been established.
 // WiFi may require a connection for VPN on Demand.
@@ -483,10 +509,20 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     }
     
     // this makes sure the change notification happens on the MAIN THREAD
+    Reachability* __weak weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification 
-                                                            object:self];
+        [weakSelf postNotification:flags];
     });
+}
+
+-(void)postNotification:(SCNetworkReachabilityFlags)flags {
+    bool isReachable = [self isReachableWithFlags:flags];
+    NetworkStatus networkStatus = [self networkStatusWithFlags:flags];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kReachabilityChangedNotification
+                                                        object:self
+                                                      userInfo:@{kReachabilityFlags: @(flags),
+                                                                 kReachabilityIsReachable: @(isReachable),
+                                                                 kReachabilityNetworkStatus: @(networkStatus)}];
 }
 
 @end

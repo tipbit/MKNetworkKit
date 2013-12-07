@@ -62,6 +62,9 @@
 
 
 extern NSString *const kReachabilityChangedNotification;
+extern NSString *const kReachabilityFlags;
+extern NSString *const kReachabilityIsReachable;
+extern NSString *const kReachabilityNetworkStatus;
 
 typedef enum 
 {
