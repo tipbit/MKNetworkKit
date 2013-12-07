@@ -206,33 +206,35 @@ static NSOperationQueue *_sharedNetworkQueue;
 
 -(void) reachabilityChanged:(NSNotification*) notification
 {
-  if([self.reachability currentReachabilityStatus] == ReachableViaWiFi)
-  {
-    DLog(@"Server [%@] is reachable via Wifi", self.hostName);
-    [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
-    
-    [self checkAndRestoreFrozenOperations];
-  }
-  else if([self.reachability currentReachabilityStatus] == ReachableViaWWAN)
-  {
-    if(self.wifiOnlyMode) {
-      
-      DLog(@" Disabling engine as server [%@] is reachable only via cellular data.", self.hostName);
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:0];
-    } else {
-      DLog(@"Server [%@] is reachable only via cellular data", self.hostName);
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:2];
+  if (notification.object != self.reachability)
+    return;
+  NetworkStatus networkStatus = (NetworkStatus)[notification.userInfo[kReachabilityNetworkStatus] intValue];
+  switch (networkStatus) {
+    case ReachableViaWiFi:
+      DLog(@"Server [%@] is reachable via Wifi", self.hostName);
+      [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
       [self checkAndRestoreFrozenOperations];
-    }
-  }
-  else if([self.reachability currentReachabilityStatus] == NotReachable)
-  {
-    DLog(@"Server [%@] is not reachable", self.hostName);
-    [self freezeOperations];
+      break;
+
+    case ReachableViaWWAN:
+      if(self.wifiOnlyMode) {
+        DLog(@" Disabling engine as server [%@] is reachable only via cellular data.", self.hostName);
+        [_sharedNetworkQueue setMaxConcurrentOperationCount:0];
+      } else {
+        DLog(@"Server [%@] is reachable only via cellular data", self.hostName);
+        [_sharedNetworkQueue setMaxConcurrentOperationCount:2];
+        [self checkAndRestoreFrozenOperations];
+      }
+      break;
+
+    case NotReachable:
+      DLog(@"Server [%@] is not reachable", self.hostName);
+      [self freezeOperations];
+      break;
   }
   
   if(self.reachabilityChangedHandler) {
-    self.reachabilityChangedHandler([self.reachability currentReachabilityStatus]);
+    self.reachabilityChangedHandler(networkStatus);
   }
 }
 
