@@ -1007,7 +1007,10 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     self.isCancelled = YES;
     
     [self.connection cancel];
-    
+
+    NSError* err = [[NSError alloc] initWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    [self operationFailedWithError:err];
+
     [self.responseBlocks removeAllObjects];
     self.responseBlocks = nil;
     
