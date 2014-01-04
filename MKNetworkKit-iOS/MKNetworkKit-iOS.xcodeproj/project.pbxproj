@@ -17,6 +17,7 @@
 		40FBBE2D172DB65500AAD9CC /* NSData+MKBase64.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABE5A85D165B5A34001F93EF /* NSData+MKBase64.h */; };
 		40FBBE2E172DB65500AAD9CC /* UIImageView+MKNetworkKitAdditions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABFC7C8A16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.h */; };
 		40FBBE30172DB67800AAD9CC /* Reachability.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABB5C2B6148B3B360056D3E9 /* Reachability.h */; };
+		8B97038C14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */; };
 		8B97038D14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */; };
 		AB3A308A148F099C00D06246 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB3A3089148F099C00D06246 /* Security.framework */; };
 		AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */ = {isa = PBXBuildFile; fileRef = AB3A3097148F0A3B00D06246 /* NSDate+RFC1123.m */; };
@@ -102,8 +103,6 @@
 		ABE5A85E165B5A34001F93EF /* NSData+MKBase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+MKBase64.m"; sourceTree = "<group>"; };
 		ABFC7C8A16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+MKNetworkKitAdditions.h"; sourceTree = "<group>"; };
 		ABFC7C8B16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+MKNetworkKitAdditions.m"; sourceTree = "<group>"; };
-		DA0B2E971799C6AA004C5C94 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
-		DA0B2EA2179A0BBB004C5C94 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,8 +153,6 @@
 			isa = PBXGroup;
 			children = (
 				ABB5C2A9148B3B360056D3E9 /* Categories */,
-				DA0B2E971799C6AA004C5C94 /* JSONKit.h */,
-				DA0B2EA2179A0BBB004C5C94 /* JSONKit.m */,
 				ABB5C2B0148B3B360056D3E9 /* MKNetworkEngine.h */,
 				ABB5C2B1148B3B360056D3E9 /* MKNetworkEngine.m */,
 				ABB5C2B2148B3B360056D3E9 /* MKNetworkKit.h */,
