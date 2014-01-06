@@ -745,7 +745,7 @@ typedef enum {
 // You are not likely to need to call them from outside this class.
 
 -(void) setResponseData:(NSData*)data;
--(void) setResponseJSON:(id)obj error:(NSError**)error;
+-(BOOL) setResponseJSON:(id)obj error:(NSError**)error;
 
 /*!
  @abstract Set the response status code and headers.

@@ -1461,8 +1461,15 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   self.mutableData = [data mutableCopy];
 }
 
--(void)setResponseJSON:(id)obj error:(NSError**)error {
-  [self setResponseData:[NSJSONSerialization dataWithJSONObject:obj options:0 error:error]];
+-(BOOL)setResponseJSON:(id)obj error:(NSError**)error {
+  NSData* data = [NSJSONSerialization dataWithJSONObject:obj options:0 error:error];
+  if (data == nil) {
+    return NO;
+  }
+  else {
+    [self setResponseData:data];
+    return YES;
+  }
 }
 
 -(void)setResponseStatusCode:(NSInteger)statusCode andHeaderFields:(NSDictionary*)headerFields {
