@@ -27,6 +27,8 @@
 @interface QueueMonitor ()
 
 @property (nonatomic, weak, readonly) NSOperationQueue* queue;
+@property (nonatomic, readonly) bool isNetwork;
+
 @property (atomic) NSUInteger queueLengthPeak;
 
 /**
@@ -41,6 +43,16 @@
  * May only be accessed under @synchronized (allMonitors).
  */
 static NSMutableArray* allMonitors;
+
+/**
+ * Main thread only.
+ */
+static bool lastNetworkActivity;
+
+/**
+ * Main thread only.
+ */
+static NSNumber* pendingNetworkActivity;
 
 
 @implementation QueueMonitor
@@ -58,10 +70,11 @@ static NSMutableArray* allMonitors;
 }
 
 
--(id)init:(NSOperationQueue*)queue {
+-(id)init:(NSOperationQueue*)queue isNetwork:(bool)isNetwork {
     self = [super init];
     if (self) {
         _queue = queue;
+        _isNetwork = isNetwork;
         _jobs_ = [NSMutableArray array];
 
         [queue addObserver:self forKeyPath:@"operationCount" options:0 context:NULL];
@@ -173,9 +186,40 @@ static NSMutableArray* allMonitors;
     if (n > self.queueLengthPeak)
         self.queueLengthPeak = n;
     [[NSNotificationCenter defaultCenter] postNotificationName:kMKNetworkEngineOperationCountChanged object:@(n)];
+    bool networkActivity = [QueueMonitor checkActivity];
 #if TARGET_OS_IPHONE
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = [QueueMonitor anyActivity];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [QueueMonitor updateNetworkActivityIndicator:networkActivity];
+    });
+#else
+    __unused bool dummy = networkActivity;
 #endif
+}
+
+
++(void)updateNetworkActivityIndicator:(bool)activity {
+    assert([NSThread isMainThread]);
+
+    NSNumber* pending = pendingNetworkActivity;
+    if ((pending == nil && activity == lastNetworkActivity) ||
+        (pending != nil && activity == [pending boolValue])) {
+        return;
+    }
+
+    if (pending != nil)
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateNetworkActivityIndicator_) object:nil];
+    pendingNetworkActivity = @(activity);
+
+    [self performSelector:@selector(updateNetworkActivityIndicator_) withObject:nil afterDelay:0.3];
+}
+
+
++(void)updateNetworkActivityIndicator_ {
+    assert([NSThread isMainThread]);
+
+    lastNetworkActivity = [pendingNetworkActivity boolValue];
+    pendingNetworkActivity = nil;
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = lastNetworkActivity;
 }
 
 
@@ -186,7 +230,12 @@ static NSMutableArray* allMonitors;
 }
 
 
-+(bool)anyActivity {
+/**
+ * Go through allMonitors, discarding any that are no longer valid.
+ *
+ * @return Whether any of the remaining monitors are showing network activity.
+ */
++(bool)checkActivity {
     bool result = false;
     @synchronized (allMonitors) {
         NSMutableArray* to_remove = nil;
@@ -197,7 +246,7 @@ static NSMutableArray* allMonitors;
                     to_remove = [NSMutableArray array];
                 [to_remove addObject:qm];
             }
-            else if (q.operationCount > 0) {
+            else if (qm.isNetwork && q.operationCount > 0) {
                 result = true;
             }
         }

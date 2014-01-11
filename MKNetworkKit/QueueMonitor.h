@@ -29,7 +29,10 @@
 @property (readonly) NSInteger queueMaxConcurrentOperationCount;
 @property (readonly) NSArray* jobs;
 
--(id)init:(NSOperationQueue*)queue;
+/**
+ * @param isNetwork If true, then when this queue has jobs the networkActivityIndicatorVisible will be shown on iPhone.
+ */
+-(id)init:(NSOperationQueue*)queue isNetwork:(bool)isNetwork;
 
 /**
  * Add the given operation to this monitor, assuming that you've already added it to the queue.

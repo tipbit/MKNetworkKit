@@ -82,7 +82,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
       _sharedNetworkQueue = [[NSOperationQueue alloc] init];
       _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
       [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
-      _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue];
+      _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue isNetwork:true];
     });
   }
 }
