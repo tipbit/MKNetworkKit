@@ -232,7 +232,13 @@ static NSMutableArray* allMonitors;
 
 
 -(NSString *)description {
-    return [NSString stringWithFormat:NSLocalizedString(@"%@ %2u -> %2u %@", @"QueueMonitorJob.description"),
+    return [NSString stringWithFormat:NSLocalizedString(@"%@ %@", @"QueueMonitorJob.description"),
+            self.isFinished ? @"F" : self.isExecuting ? @"X" : @"w", self.jobName];
+}
+
+
+-(NSString *)debugDescription {
+    return [NSString stringWithFormat:NSLocalizedString(@"%@ %2u -> %2u %@", @"QueueMonitorJob.debugDescription"),
             self.isFinished ? @"F" : self.isExecuting ? @"X" : @"w", self.queueLengthWhenAdded, self.queueLengthWhenScheduled, self.jobName];
 }
 
