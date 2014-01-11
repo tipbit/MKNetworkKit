@@ -447,9 +447,8 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
   if([operation isCacheable]) {
     [self enqueueOperationCacheable:operation forceReload:forceReload];
   } else {
-    [_sharedNetworkQueue addOperation:operation];
     NSString* name = [NSString stringWithFormat:@"MK:%@", operation.url];
-    [_sharedNetworkQueueMonitor addOperation:operation name:name];
+    [_sharedNetworkQueueMonitor addOperationToQueue:operation name:name];
   }
     
   if([self.reachability currentReachabilityStatus] == NotReachable)
@@ -506,9 +505,8 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
     }
 
     if(expiryTimeInSeconds <= 0 || forceReload || operationFinished) {
-      [_sharedNetworkQueue addOperation:operation];
       NSString* name = [NSString stringWithFormat:@"MK:%@", operation.url];
-      [_sharedNetworkQueueMonitor addOperation:operation name:name];
+      [_sharedNetworkQueueMonitor addOperationToQueue:operation name:name];
     }
     // else don't do anything
   });

@@ -31,7 +31,26 @@
 
 -(id)init:(NSOperationQueue*)queue;
 
--(void)addOperation:(NSOperation*)op name:(NSString*)name;
+/**
+ * Add the given operation to this monitor, assuming that you've already added it to the queue.
+ *
+ * @param name May be nil, in which case the job will be marked <unnamed>.
+ */
+-(void)monitorOperation:(NSOperation*)op name:(NSString*)name;
+
+/**
+ * Add the given operation to self.queue, and add it to the monitoring with the given name.
+ *
+ * @param name May be nil, in which case the job will be marked <unnamed>.
+ */
+-(void)addOperationToQueue:(NSOperation*)op name:(NSString*)name;
+
+/**
+ * Create an NSBlockOperation with the given block, add it to self.queue, and add it to the monitoring with the given name.
+ *
+ * @param name May be nil, in which case the job will be marked <unnamed>.
+ */
+-(void)addOperationToQueueWithBlock:(void(^)(void))block name:(NSString*)name;
 
 -(void)resetStats;
 

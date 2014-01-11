@@ -139,11 +139,24 @@ static NSMutableArray* allMonitors;
 }
 
 
--(void)addOperation:(NSOperation*)op name:(NSString*)name {
+-(void)addOperationToQueue:(NSOperation *)op name:(NSString *)name {
+    [self.queue addOperation:op];
+    [self monitorOperation:op name:name];
+}
+
+
+-(void)addOperationToQueueWithBlock:(void(^)(void))block name:(NSString *)name {
+    NSBlockOperation* op = [NSBlockOperation blockOperationWithBlock:block];
+    [self.queue addOperation:op];
+    [self monitorOperation:op name:name];
+}
+
+
+-(void)monitorOperation:(NSOperation *)op name:(NSString *)name {
     QueueMonitorJob* job = [[QueueMonitorJob alloc] init];
     job.queue = self.queue;
     job.operation = op;
-    job.jobName = name;
+    job.jobName = name == nil ? @"<unnamed>" : name;
     job.queueLengthWhenAdded = self.queueLength;
 
     @synchronized (self.jobs_) {
