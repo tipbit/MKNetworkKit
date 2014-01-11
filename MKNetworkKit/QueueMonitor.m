@@ -87,8 +87,8 @@ static NSMutableArray* allMonitors;
             NSOperation* op = job.operation;
 
             if (op == nil) {
-                job.isExecuting = true;
-                job.isFinished = false;
+                job.isExecuting = false;
+                job.isFinished = true;
                 dead_ones++;
             }
             else {
