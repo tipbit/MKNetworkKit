@@ -24,6 +24,8 @@
 //  THE SOFTWARE.
 
 #import "MKNetworkKit.h"
+#import "QueueMonitor.h"
+
 #define kFreezableOperationExtension @"mknetworkkitfrozenoperation"
 
 #ifdef __OBJC_GC__
@@ -61,6 +63,7 @@
 @end
 
 static NSOperationQueue *_sharedNetworkQueue;
+static QueueMonitor* _sharedNetworkQueueMonitor;
 
 @implementation MKNetworkEngine
 
@@ -77,9 +80,8 @@ static NSOperationQueue *_sharedNetworkQueue;
     static dispatch_once_t oncePredicate;
     dispatch_once(&oncePredicate, ^{
       _sharedNetworkQueue = [[NSOperationQueue alloc] init];
-      [_sharedNetworkQueue addObserver:[self self] forKeyPath:@"operationCount" options:0 context:NULL];
       [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
-      
+      _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue];
     });
   }
 }
@@ -177,27 +179,6 @@ static NSOperationQueue *_sharedNetworkQueue;
   [[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationWillTerminateNotification object:nil];
 #endif
 
-}
-
-#pragma mark -
-#pragma mark KVO for network Queue
-
-+ (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
-                         change:(NSDictionary *)change context:(void *)context
-{
-  if (object == _sharedNetworkQueue && [keyPath isEqualToString:@"operationCount"]) {
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:kMKNetworkEngineOperationCountChanged
-                                                        object:[NSNumber numberWithInteger:(NSInteger)[_sharedNetworkQueue operationCount]]];
-#if TARGET_OS_IPHONE
-    [UIApplication sharedApplication].networkActivityIndicatorVisible =
-    (_sharedNetworkQueue.operationCount > 0);
-#endif
-  }
-  else {
-    [super observeValueForKeyPath:keyPath ofObject:object
-                           change:change context:context];
-  }
 }
 
 #pragma mark -
@@ -466,6 +447,8 @@ static NSOperationQueue *_sharedNetworkQueue;
     [self enqueueOperationCacheable:operation forceReload:forceReload];
   } else {
     [_sharedNetworkQueue addOperation:operation];
+    NSString* name = [NSString stringWithFormat:@"MK:%@", operation.url];
+    [_sharedNetworkQueueMonitor addOperation:operation name:name];
   }
     
   if([self.reachability currentReachabilityStatus] == NotReachable)
@@ -521,8 +504,11 @@ static NSOperationQueue *_sharedNetworkQueue;
       }
     }
 
-    if(expiryTimeInSeconds <= 0 || forceReload || operationFinished)
+    if(expiryTimeInSeconds <= 0 || forceReload || operationFinished) {
       [_sharedNetworkQueue addOperation:operation];
+      NSString* name = [NSString stringWithFormat:@"MK:%@", operation.url];
+      [_sharedNetworkQueueMonitor addOperation:operation name:name];
+    }
     // else don't do anything
   });
 }
