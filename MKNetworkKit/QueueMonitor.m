@@ -149,8 +149,6 @@ static NSMutableArray* allMonitors;
     @synchronized (self.jobs_) {
         [self.jobs_ insertObject:job atIndex:0];
     }
-
-    NSLog(@"Added job: jobs now %@", self.jobs);
 }
 
 
@@ -165,8 +163,6 @@ static NSMutableArray* allMonitors;
 #if TARGET_OS_IPHONE
     [UIApplication sharedApplication].networkActivityIndicatorVisible = [QueueMonitor anyActivity];
 #endif
-
-    NSLog(@"operationCount changed: queue now %@", self);
 }
 
 
