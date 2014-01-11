@@ -80,6 +80,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
     static dispatch_once_t oncePredicate;
     dispatch_once(&oncePredicate, ^{
       _sharedNetworkQueue = [[NSOperationQueue alloc] init];
+      _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
       [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
       _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue];
     });
