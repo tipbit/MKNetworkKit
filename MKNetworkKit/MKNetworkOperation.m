@@ -1396,6 +1396,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   }
   
   [self endBackgroundTask];
+
+  assert(connection == self.connection);
+  self.connection = nil;
 }
 
 -(void)sendNotificationsForFinishedConnection:(NSURLConnection *)connection {
