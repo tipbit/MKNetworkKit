@@ -28,6 +28,9 @@
 
 #define kFreezableOperationExtension @"mknetworkkitfrozenoperation"
 
+#define MAX_CONCURRENT_CONNECTIONS_WIFI 6
+#define MAX_CONCURRENT_CONNECTIONS_WWAN 3
+
 #ifdef __OBJC_GC__
 #error MKNetworkKit does not support Objective-C Garbage Collection
 #endif
@@ -81,7 +84,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
     dispatch_once(&oncePredicate, ^{
       _sharedNetworkQueue = [[NSOperationQueue alloc] init];
       _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
+      [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WIFI];
       _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue isNetwork:true];
     });
   }
@@ -193,7 +196,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
   switch (networkStatus) {
     case ReachableViaWiFi:
       DLog(@"Server [%@] is reachable via Wifi", self.hostName);
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:6];
+      [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WIFI];
       [self checkAndRestoreFrozenOperations];
       break;
 
@@ -203,7 +206,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
         [_sharedNetworkQueue setMaxConcurrentOperationCount:0];
       } else {
         DLog(@"Server [%@] is reachable only via cellular data", self.hostName);
-        [_sharedNetworkQueue setMaxConcurrentOperationCount:2];
+        [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WWAN];
         [self checkAndRestoreFrozenOperations];
       }
       break;
