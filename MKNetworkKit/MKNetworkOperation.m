@@ -71,6 +71,8 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 @property (strong, nonatomic) NSMutableData *mutableData;
 @property (assign, nonatomic) NSUInteger downloadedDataSize;
 
+@property (strong, nonatomic) id jsonObject;
+
 @property (nonatomic, strong) NSMutableArray *notModifiedHandlers;
 
 @property (nonatomic, strong) NSMutableArray *uploadProgressChangedHandlers;
@@ -372,6 +374,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   [encoder encodeInt32:_state forKey:@"state"];
   [encoder encodeBool:self.isCancelled forKey:@"isCancelled"];
   [encoder encodeObject:self.mutableData forKey:@"mutableData"];
+  [encoder encodeObject:self.jsonObject forKey:@"jsonObject"];
   [encoder encodeInteger:(NSInteger)self.downloadedDataSize forKey:@"downloadedDataSize"];
   [encoder encodeObject:self.downloadStreams forKey:@"downloadStreams"];
   [encoder encodeInteger:self.startPosition forKey:@"startPosition"];
@@ -401,6 +404,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     [self setState:(MKNetworkOperationState)[decoder decodeInt32ForKey:@"state"]];
     self.isCancelled = [decoder decodeBoolForKey:@"isCancelled"];
     self.mutableData = [decoder decodeObjectForKey:@"mutableData"];
+    self.jsonObject = [decoder decodeObjectForKey:@"jsonObject"];
     self.downloadedDataSize = [decoder decodeIntegerForKey:@"downloadedDataSize"];
     self.downloadStreams = [decoder decodeObjectForKey:@"downloadStreams"];
     self.startPosition = [decoder decodeIntegerForKey:@"startPosition"];
@@ -433,6 +437,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   [theCopy setState:self.state];
   [theCopy setIsCancelled:self.isCancelled];
   [theCopy setMutableData:[self.mutableData copy]];
+  [theCopy setJsonObject:[self.jsonObject copy]];
   [theCopy setDownloadedDataSize:self.downloadedDataSize];
   [theCopy setNotModifiedHandlers:[self.notModifiedHandlers copy]];
   [theCopy setUploadProgressChangedHandlers:[self.uploadProgressChangedHandlers copy]];
@@ -471,6 +476,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   [theCopy setState:self.state];
   [theCopy setIsCancelled:self.isCancelled];
   [theCopy setMutableData:[self.mutableData mutableCopy]];
+  [theCopy setJsonObject:[self.jsonObject mutableCopy]];
   [theCopy setDownloadedDataSize:self.downloadedDataSize];
   [theCopy setNotModifiedHandlers:[self.notModifiedHandlers mutableCopy]];
   [theCopy setUploadProgressChangedHandlers:[self.uploadProgressChangedHandlers mutableCopy]];
@@ -510,6 +516,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     [theCopy setErrorBlocks:[self.errorBlocks mutableCopy]];
     [theCopy setErrorBlocksType2:[self.errorBlocksType2 mutableCopy]];
     [theCopy setMutableData:[self.mutableData mutableCopy]];
+    [theCopy setJsonObject:[self.jsonObject mutableCopy]];
     [theCopy setNotModifiedHandlers:[self.notModifiedHandlers mutableCopy]];
     [theCopy setUploadProgressChangedHandlers:[self.uploadProgressChangedHandlers mutableCopy]];
     [theCopy setDownloadProgressChangedHandlers:[self.downloadProgressChangedHandlers mutableCopy]];
@@ -817,10 +824,29 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
   [self.filesToBePosted addObject:dict];
 }
 
+-(void)addJSONObject:(id)jsonObject {
+  if ([self.request.HTTPMethod isEqualToString:@"GET"]) {
+    [self.request setHTTPMethod:@"POST"];
+  }
+  self.jsonObject = jsonObject;
+}
+
 -(NSData*) bodyData {
     if (self.mutableRawData) {
         return self.mutableRawData;
     }
+
+  if (self.jsonObject) {
+    NSError* error = nil;
+    NSData* result = [NSJSONSerialization dataWithJSONObject:self.jsonObject options:0 error:&error];
+    if (result == nil) {
+      DLog(@"JSON encoding failed, request body will be empty: %@", error);
+      return [NSData data];
+    }
+    else {
+      return result;
+    }
+  }
   
   if([self.filesToBePosted count] == 0 && [self.dataToBePosted count] == 0) {
     
@@ -1036,6 +1062,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     
     self.authHandler = nil;
     self.mutableData = nil;
+    self.jsonObject = nil;
     self.downloadedDataSize = 0;
     
     self.cacheHandlingBlock = nil;

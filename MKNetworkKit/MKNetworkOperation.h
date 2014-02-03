@@ -500,6 +500,19 @@ typedef enum {
 -(void) addData:(NSData*) data forKey:(NSString*) key mimeType:(NSString*) mimeType fileName:(NSString*) fileName;
 
 /*!
+ *  @abstract Attach a JSON object to a request.
+ *
+ *  @discussion
+ *  This method lets you attach an object to a request and have that object uploaded using JSON and UTF-8 encoding.
+ *  This is better than doing the encoding yourself and using addRawData because the encoding will happen on the
+ *  background thread.  Otherwise, it's exactly the same as that.
+ *  This method has a side effect. It changes the HTTPMethod to "POST" regardless of what it was before, and sets
+ *  self.postDataEncoding to MKNKPostDataEncodingTypeJSON.
+ *  This method does not copy the jsonObject (it effectively takes ownership of it) so make a copy yourself if you need to.
+ */
+-(void)addJSONObject:(id)jsonObject;
+
+/*!
  *  @abstract Block Handler for completion and error
  *  
  *  @discussion
