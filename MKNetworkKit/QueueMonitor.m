@@ -9,6 +9,10 @@
 #import "QueueMonitor.h"
 
 
+// Warn if the queue length reaches this * queue.maxConcurrentCount.
+#define QUEUE_LENGTH_WARNING_MULTIPLIER 20
+
+
 @interface QueueMonitorJob ()
 
 @property (nonatomic) NSString* jobName;
@@ -171,6 +175,9 @@ static NSNumber* pendingNetworkActivity;
     job.operation = op;
     job.jobName = name == nil ? @"<unnamed>" : name;
     job.queueLengthWhenAdded = self.queueLength;
+
+    if (job.queueLengthWhenAdded > QUEUE_LENGTH_WARNING_MULTIPLIER * self.queueMaxConcurrentOperationCount)
+        NSLog(@"Performance warning: %@ queue has %d items", self.queueName, job.queueLengthWhenAdded);
 
     @synchronized (self.jobs_) {
         [self.jobs_ insertObject:job atIndex:0];
