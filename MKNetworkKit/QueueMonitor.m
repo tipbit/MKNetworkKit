@@ -181,6 +181,9 @@ static NSNumber* pendingNetworkActivity;
 
     @synchronized (self.jobs_) {
         [self.jobs_ insertObject:job atIndex:0];
+        NSUInteger cap = job.queueLengthWhenAdded + 50;
+        if (self.jobs_.count > cap)
+            [self.jobs_ removeObjectsInRange:NSMakeRange(cap, self.jobs_.count - cap)];
     }
 }
 
