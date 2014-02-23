@@ -548,7 +548,7 @@ typedef enum {
  *	This method will be called if the server sends a 304 HTTP status for your request.
  *
  */
--(void) onNotModified:(MKNKVoidBlock) notModifiedBlock;
+-(void) onNotModified:(MKNKResponseBlock) notModifiedBlock;
 
 /*!
  *  @abstract Block Handler for tracking upload progress

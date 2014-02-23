@@ -592,7 +592,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
     [self.errorBlocksType2 addObject:[error copy]];
 }
 
--(void) onNotModified:(MKNKVoidBlock)notModifiedBlock {
+-(void) onNotModified:(MKNKResponseBlock)notModifiedBlock {
   
   [self.notModifiedHandlers addObject:[notModifiedBlock copy]];
 }
@@ -1444,9 +1444,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
     }
     else if(self.response.statusCode == 304) {
       
-      for(MKNKVoidBlock notModifiedBlock in self.notModifiedHandlers) {
+      for(MKNKResponseBlock notModifiedBlock in self.notModifiedHandlers) {
         
-        notModifiedBlock();
+        notModifiedBlock(self);
       }
     }
     else if(self.response.statusCode == 307) {
