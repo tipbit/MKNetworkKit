@@ -34,6 +34,7 @@
 @property (nonatomic, readonly) bool isNetwork;
 
 @property (atomic) NSUInteger queueLengthPeak;
+@property (atomic) NSUInteger totalJobs;
 
 /**
  * May only be accessed under @synchronized (jobs_).
@@ -141,6 +142,7 @@ static NSNumber* pendingNetworkActivity;
 
 -(void)resetStats {
     self.queueLengthPeak = 0;
+    self.totalJobs = 0;
 
     @synchronized (self.jobs_) {
         NSMutableArray* to_remove = [NSMutableArray array];
@@ -170,6 +172,10 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(void)monitorOperation:(NSOperation *)op name:(NSString *)name {
+    // Any thread.
+
+    self.totalJobs++;
+
     QueueMonitorJob* job = [[QueueMonitorJob alloc] init];
     job.queue = self.queue;
     job.operation = op;
@@ -235,8 +241,8 @@ static NSNumber* pendingNetworkActivity;
 
 -(NSString *)description {
     NSOperationQueue* q = self.queue;
-    return [NSString stringWithFormat:NSLocalizedString(@"%@, current length %u, peak length %u", @"QueueMonitor.description"),
-            q.name, q.operationCount, self.queueLengthPeak];
+    return [NSString stringWithFormat:NSLocalizedString(@"%@, current length %u, peak length %u, total jobs %u", @"QueueMonitor.description"),
+            q.name, q.operationCount, self.queueLengthPeak, self.totalJobs];
 }
 
 

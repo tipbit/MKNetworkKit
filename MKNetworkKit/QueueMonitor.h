@@ -30,6 +30,11 @@
 @property (readonly) NSArray* jobs;
 
 /**
+ * Total number of jobs added to this queue ever (or since the last resetStats), including ones that are running or haven't started yet.
+ */
+@property (readonly) NSUInteger totalJobs;
+
+/**
  * @param isNetwork If true, then when this queue has jobs the networkActivityIndicatorVisible will be shown on iPhone.
  */
 -(id)init:(NSOperationQueue*)queue isNetwork:(bool)isNetwork;
