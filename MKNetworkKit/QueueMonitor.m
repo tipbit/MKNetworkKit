@@ -183,7 +183,7 @@ static NSNumber* pendingNetworkActivity;
     job.queueLengthWhenAdded = self.queueLength;
 
     if (job.queueLengthWhenAdded > QUEUE_LENGTH_WARNING_MULTIPLIER * self.queueMaxConcurrentOperationCount)
-        NSLog(@"Performance warning: %@ queue has %d items", self.queueName, job.queueLengthWhenAdded);
+        NSLog(@"Performance warning: %@ queue has %lu items", self.queueName, (unsigned long)job.queueLengthWhenAdded);
 
     @synchronized (self.jobs_) {
         [self.jobs_ insertObject:job atIndex:0];
