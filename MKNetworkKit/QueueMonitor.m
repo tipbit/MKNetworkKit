@@ -30,7 +30,21 @@
 
 @interface QueueMonitor ()
 
+/**
+ * The NSOperationQueue that is being monitored.
+ */
 @property (nonatomic, weak, readonly) NSOperationQueue* queue;
+
+/**
+ * The NSMutableArray that is being monitored.  This is an alternative to using NSOperationQueue; self.array and self.queue are mutually exclusive.
+ */
+@property (nonatomic, weak, readonly) NSMutableArray * array;
+
+/**
+ * The name for this monitor.  Only used when using self.array; when using self.queue, the queue's name is used.
+ */
+@property (nonatomic, strong, readonly) NSString * name;
+
 @property (nonatomic, readonly) bool isNetwork;
 
 @property (atomic) NSUInteger queueLengthPeak;
@@ -40,6 +54,11 @@
  * May only be accessed under @synchronized (jobs_).
  */
 @property (nonatomic, readonly) NSMutableArray* jobs_;
+
+/**
+ * Only used when using self.array.
+ */
+@property (atomic) NSUInteger lastArrayLength;
 
 @end
 
@@ -92,6 +111,22 @@ static NSNumber* pendingNetworkActivity;
 }
 
 
+-(id)initWithArray:(NSMutableArray *)array isNetwork:(bool)isNetwork name:(NSString *)name {
+    self = [super init];
+    if (self) {
+        _array = array;
+        _name = name;
+        _isNetwork = isNetwork;
+        _jobs_ = [NSMutableArray array];
+
+        @synchronized (allMonitors) {
+            [allMonitors addObject:self];
+        }
+    }
+    return self;
+}
+
+
 -(void)dealloc {
     [_queue removeObserver:self forKeyPath:@"operationCount"];
 }
@@ -126,12 +161,12 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(NSString *)queueName {
-    return self.queue.name;
+    return self.queue == nil ? self.name : self.queue.name;
 }
 
 
 -(NSUInteger)queueLength {
-    return self.queue.operationCount;
+    return self.queue == nil ? self.array.count : self.queue.operationCount;
 }
 
 
@@ -213,6 +248,18 @@ static NSNumber* pendingNetworkActivity;
 }
 
 
+-(void)refreshArrayStats {
+    NSUInteger newArrayLength = self.array.count;
+    if (newArrayLength > self.lastArrayLength) {
+        self.totalJobs += newArrayLength - self.lastArrayLength;
+    }
+    if (newArrayLength > self.queueLengthPeak) {
+        self.queueLengthPeak = newArrayLength;
+    }
+    self.lastArrayLength = newArrayLength;
+}
+
+
 +(void)updateNetworkActivityIndicator:(bool)activity {
     assert([NSThread isMainThread]);
 
@@ -240,9 +287,8 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(NSString *)description {
-    NSOperationQueue* q = self.queue;
     return [NSString stringWithFormat:NSLocalizedString(@"%@, current length %u, peak length %u, total jobs %u", @"QueueMonitor.description"),
-            q.name, q.operationCount, self.queueLengthPeak, self.totalJobs];
+            self.queueName, self.queueLength, self.queueLengthPeak, self.totalJobs];
 }
 
 
@@ -256,18 +302,23 @@ static NSNumber* pendingNetworkActivity;
     @synchronized (allMonitors) {
         NSMutableArray* to_remove = nil;
         for (QueueMonitor* qm in allMonitors) {
+            if (qm.array != nil) {
+                continue;
+            }
             NSOperationQueue* q = qm.queue;
             if (q == nil) {
-                if (to_remove == nil)
+                if (to_remove == nil) {
                     to_remove = [NSMutableArray array];
+                }
                 [to_remove addObject:qm];
             }
             else if (qm.isNetwork && q.operationCount > 0) {
                 result = true;
             }
         }
-        if (to_remove.count > 0)
+        if (to_remove.count > 0) {
             [allMonitors removeObjectsInArray:to_remove];
+        }
     }
     return result;
 }

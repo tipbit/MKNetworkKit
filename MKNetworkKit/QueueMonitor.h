@@ -40,6 +40,14 @@
 -(id)init:(NSOperationQueue*)queue isNetwork:(bool)isNetwork;
 
 /**
+ * Monitor the given NSMutableArray.  Whenever you add to this array, you must call [self refreshArrayStats].  If you need
+ * any locking around access to this array, then you must handle that yourself before calling [self refreshArrayStats].
+ *
+ * @param isNetwork If true, then when this array is non-empty the networkActivityIndicatorVisible will be shown on iPhone.
+ */
+-(id)initWithArray:(NSMutableArray *)array isNetwork:(bool)isNetwork name:(NSString *)name;
+
+/**
  * Add the given operation to this monitor, assuming that you've already added it to the queue.
  *
  * @param name May be nil, in which case the job will be marked <unnamed>.
@@ -59,6 +67,8 @@
  * @param name May be nil, in which case the job will be marked <unnamed>.
  */
 -(void)addOperationToQueueWithBlock:(void(^)(void))block name:(NSString*)name;
+
+-(void)refreshArrayStats;
 
 -(void)resetStats;
 
