@@ -192,6 +192,11 @@
                               params:(NSDictionary*) body
                         httpMethod:(NSString*) method;
 
+-(MKNetworkOperation*) operationWithURLString:(NSString*) urlString
+                                       params:(NSDictionary*) body
+                                   httpMethod:(NSString*) method
+                              timeoutInterval:(NSTimeInterval)timeoutInterval;
+
 /*!
  *  @abstract adds the custom default headers
  *  

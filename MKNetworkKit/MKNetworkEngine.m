@@ -387,8 +387,15 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
 -(MKNetworkOperation*) operationWithURLString:(NSString*) urlString
                                        params:(NSDictionary*) body
                                    httpMethod:(NSString*)method {
+  return [self operationWithURLString:urlString params:body httpMethod:method timeoutInterval:kMKNetworkKitRequestTimeOutInSeconds];
+}
+
+-(MKNetworkOperation*) operationWithURLString:(NSString*) urlString
+                                       params:(NSDictionary*) body
+                                   httpMethod:(NSString*)method
+                              timeoutInterval:(NSTimeInterval)timeoutInterval {
   
-  MKNetworkOperation *operation = [[self.customOperationSubclass alloc] initWithURLString:urlString params:body httpMethod:method];
+  MKNetworkOperation *operation = [[self.customOperationSubclass alloc] initWithURLString:urlString params:body httpMethod:method timeoutInterval:timeoutInterval];
   operation.shouldSendAcceptLanguageHeader = self.shouldSendAcceptLanguageHeader;
   
   [self prepareHeaders:operation];

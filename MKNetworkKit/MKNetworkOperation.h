@@ -752,6 +752,11 @@ typedef enum {
                  params:(NSDictionary *)params
              httpMethod:(NSString *)method;
 
+- (id)initWithURLString:(NSString *)aURLString
+                 params:(NSDictionary *)params
+             httpMethod:(NSString *)method
+        timeoutInterval:(NSTimeInterval)timeoutInterval;
+
 
 // These methods are available for subclasses to override the way that
 // this class handles connection:didFailWithError: and connectionDidFinishLoading:.
