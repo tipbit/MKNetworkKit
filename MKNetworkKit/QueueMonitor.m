@@ -192,11 +192,13 @@ static NSNumber* pendingNetworkActivity;
         for (QueueMonitorJob* job in self.jobs_) {
             NSOperation* op = job.operation;
 
-            if (op == nil)
+            if (op == nil) {
                 [to_remove addObject:job];
+            }
         }
-        if (to_remove.count > 0)
+        if (to_remove.count > 0) {
             [self.jobs_ removeObjectsInArray:to_remove];
+        }
     }
 }
 
