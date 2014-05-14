@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		407AAB2A1922037700247FFD /* NSOperationQueue+ActivityThreshold.m in Sources */ = {isa = PBXBuildFile; fileRef = 407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */; };
 		40AE14291880EE970037A600 /* QueueMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 40AE14281880EE970037A600 /* QueueMonitor.m */; };
 		40AE143E188110AD0037A600 /* QueueMonitor.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40AE14271880EE970037A600 /* QueueMonitor.h */; };
 		40FBBE24172DB5B700AAD9CC /* NSDictionary+RequestEncoding.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABB5C2AA148B3B360056D3E9 /* NSDictionary+RequestEncoding.h */; };
@@ -78,6 +79,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		407AAB281922037700247FFD /* NSOperationQueue+ActivityThreshold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperationQueue+ActivityThreshold.h"; sourceTree = "<group>"; };
+		407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperationQueue+ActivityThreshold.m"; sourceTree = "<group>"; };
 		40AE14271880EE970037A600 /* QueueMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = QueueMonitor.h; path = ../../MKNetworkKit/QueueMonitor.h; sourceTree = "<group>"; };
 		40AE14281880EE970037A600 /* QueueMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; name = QueueMonitor.m; path = ../../MKNetworkKit/QueueMonitor.m; sourceTree = "<group>"; };
 		8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+CaseInsensitive.h"; sourceTree = "<group>"; };
@@ -189,6 +192,8 @@
 				ABB5C2AB148B3B360056D3E9 /* NSDictionary+RequestEncoding.m */,
 				8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */,
 				8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */,
+				407AAB281922037700247FFD /* NSOperationQueue+ActivityThreshold.h */,
+				407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */,
 				ABB5C2AC148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.h */,
 				ABB5C2AD148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.m */,
 				ABB5C2AE148B3B360056D3E9 /* UIAlertView+MKNetworkKitAdditions.h */,
@@ -270,6 +275,7 @@
 				ABB5C2C3148B3B360056D3E9 /* MKNetworkOperation.m in Sources */,
 				ABB5C2C5148B3B360056D3E9 /* Reachability.m in Sources */,
 				40AE14291880EE970037A600 /* QueueMonitor.m in Sources */,
+				407AAB2A1922037700247FFD /* NSOperationQueue+ActivityThreshold.m in Sources */,
 				AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */,
 				ABE5A860165B5A34001F93EF /* NSData+MKBase64.m in Sources */,
 				ABFC7C8D16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.m in Sources */,

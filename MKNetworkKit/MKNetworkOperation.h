@@ -365,6 +365,18 @@ typedef enum {
  *  The default value is set to NSURLCredentialPersistenceForSession, change it to NSURLCredentialPersistenceNone to avoid caching issues (isse #35)
  */
 @property (nonatomic, assign) NSURLCredentialPersistence credentialPersistence;
+
+/*!
+ *  @abstract YES if this operation should not cause the activity indicator to show.
+ *
+ *  @discussion
+ *  Use this for "long-poll" operations where the network connection is intended to block for a long time, and you don't want this to look like
+ *  there is ongoing network traffic.
+ *
+ *  Set this flag before enqueuing this operation.
+ */
+@property (nonatomic, assign) BOOL hideActivityIndicator;
+
 #if TARGET_OS_IPHONE
 
 /*!

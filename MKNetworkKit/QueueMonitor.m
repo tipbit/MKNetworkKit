@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Tipbit. All rights reserved.
 //
 
+#import "NSOperationQueue+ActivityThreshold.h"
+
 #import "QueueMonitor.h"
 
 
@@ -24,6 +26,12 @@
 
 @property (nonatomic, weak) NSOperationQueue* queue;
 @property (nonatomic, weak) NSOperation* operation;
+
+/**
+ * true if an offset that has been applied to self.queue.activityThreshold to account for this job.
+ * This will be false if the job does not have hideActivityIndicator set, or is finished; true otherwise.
+ */
+@property (nonatomic) bool activityThresholdAdjusted;
 
 @end
 
@@ -194,15 +202,19 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(void)addOperationToQueue:(NSOperation *)op name:(NSString *)name {
-    [self.queue addOperation:op];
+    // These two need to be this way around, because the addOperation call
+    // will trigger a KVO notification on operationCount, and that's when
+    // we're calling checkActivity and updateNetworkActivityIndicator.
     [self monitorOperation:op name:name];
+    [self.queue addOperation:op];
 }
 
 
 -(void)addOperationToQueueWithBlock:(void(^)(void))block name:(NSString *)name {
     NSBlockOperation* op = [NSBlockOperation blockOperationWithBlock:block];
-    [self.queue addOperation:op];
+    // Same as comment above.
     [self monitorOperation:op name:name];
+    [self.queue addOperation:op];
 }
 
 
@@ -312,7 +324,7 @@ static NSNumber* pendingNetworkActivity;
                 }
                 [to_remove addObject:qm];
             }
-            else if (qm.isNetwork && q.operationCount > 0) {
+            else if (qm.isNetwork && q.operationCount > q.activityThreshold) {
                 result = true;
             }
         }
@@ -331,7 +343,7 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(void)dealloc {
-    self.operation = nil; // Call removeObserver implicitly.
+    self.operation = nil; // Call removeObserver and setActivityThresholdAdjusted implicitly.
 }
 
 
@@ -344,6 +356,35 @@ static NSNumber* pendingNetworkActivity;
     [new_operation addObserver:self forKeyPath:@"isCancelled" options:0 context:NULL];
     [new_operation addObserver:self forKeyPath:@"isExecuting" options:0 context:NULL];
     [new_operation addObserver:self forKeyPath:@"isFinished" options:0 context:NULL];
+
+    self.activityThresholdAdjusted = getHideActivityIndicator(new_operation);
+}
+
+
+-(void)setActivityThresholdAdjusted:(bool)new_activityThresholdAdjusted {
+    if (new_activityThresholdAdjusted == _activityThresholdAdjusted) {
+        return;
+    }
+    _activityThresholdAdjusted = new_activityThresholdAdjusted;
+    NSInteger offset = new_activityThresholdAdjusted ? 1 : -1;
+    @synchronized (self.queue) {
+        self.queue.activityThreshold += offset;
+        if (self.queue.activityThreshold > 10000000) {
+            // Wrap-around, squelch to zero for sanity.  This should never happen.
+            self.queue.activityThreshold = 0;
+        }
+    }
+}
+
+
+static BOOL getHideActivityIndicator(NSOperation * op) {
+    if ([op isKindOfClass:[MKNetworkOperation class]]) {
+        MKNetworkOperation * netop = (MKNetworkOperation *)op;
+        return netop.hideActivityIndicator;
+    }
+    else {
+        return NO;
+    }
 }
 
 
@@ -356,6 +397,9 @@ static NSNumber* pendingNetworkActivity;
 
     if ([keyPath isEqualToString:@"isExecuting"] && self.isExecuting) {
         self.queueLengthWhenScheduled = self.queue.operationCount;
+    }
+    if (op.isFinished || op.isCancelled) {
+        self.operation = nil; // Call removeObserver and setActivityThresholdAdjusted implicitly.
     }
 }
 
