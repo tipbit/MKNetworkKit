@@ -401,8 +401,11 @@ static BOOL getHideActivityIndicator(NSOperation * op) {
 
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    NSOperation* op = self.operation;
-    assert(object == op);
+    NSOperation* op = (NSOperation *)object;
+    // op is ordinarily equal to self.operation here.
+    // self.operation might be nil if the operation is cancelled and we're seeing the isFinished = YES event now.
+    // We'll see the isCancelled flag change, set self.operation = nil below, and then we'll see the isFinished
+    // flag change.
     self.isCancelled = op.isCancelled;
     self.isExecuting = op.isExecuting;
     self.isFinished = op.isFinished;
