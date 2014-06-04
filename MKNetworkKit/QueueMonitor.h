@@ -11,8 +11,8 @@
 
 @interface QueueMonitorJob : NSObject
 
-@property (readonly) NSString* jobName;
-@property (readonly) NSUInteger queueLengthWhenAdded;
+@property (nonatomic, readonly) NSString* jobName;
+@property (nonatomic, readonly) NSUInteger queueLengthWhenAdded;
 @property (readonly) NSUInteger queueLengthWhenScheduled;
 @property (readonly) bool isCancelled;
 @property (readonly) bool isExecuting;

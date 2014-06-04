@@ -17,14 +17,12 @@
 
 @interface QueueMonitorJob ()
 
-@property (nonatomic) NSString* jobName;
-@property (nonatomic) NSUInteger queueLengthWhenAdded;
 @property (nonatomic) NSUInteger queueLengthWhenScheduled;
 @property (nonatomic) bool isCancelled;
 @property (nonatomic) bool isExecuting;
 @property (nonatomic) bool isFinished;
 
-@property (nonatomic, weak) NSOperationQueue* queue;
+@property (nonatomic, readonly, weak) NSOperationQueue* queue;
 @property (nonatomic, weak) NSOperation* operation;
 
 /**
@@ -32,6 +30,8 @@
  * This will be false if the job does not have hideActivityIndicator set, or is finished; true otherwise.
  */
 @property (nonatomic) bool activityThresholdAdjusted;
+
+-(id)init:(NSOperationQueue *)queue operation:(NSOperation *)operation jobName:(NSString *)jobName queueLength:(NSUInteger)queueLength;
 
 @end
 
@@ -225,11 +225,8 @@ static NSNumber* pendingNetworkActivity;
 
     self.totalJobs++;
 
-    QueueMonitorJob* job = [[QueueMonitorJob alloc] init];
-    job.queue = self.queue;
-    job.operation = op;
-    job.jobName = name == nil ? @"<unnamed>" : name;
-    job.queueLengthWhenAdded = self.queueLength;
+    NSString * jobName = name == nil ? @"<unnamed>" : name;
+    QueueMonitorJob* job = [[QueueMonitorJob alloc] init:self.queue operation:op jobName:jobName queueLength:self.queueLength];
 
     if (job.queueLengthWhenAdded > QUEUE_LENGTH_WARNING_MULTIPLIER * self.queueMaxConcurrentOperationCount)
         NSLog(@"Performance warning: %@ queue has %lu items", self.queueName, (unsigned long)job.queueLengthWhenAdded);
@@ -342,6 +339,19 @@ static NSNumber* pendingNetworkActivity;
 
 
 @implementation QueueMonitorJob
+
+
+-(id)init:(NSOperationQueue *)queue operation:(NSOperation *)operation jobName:(NSString *)jobName queueLength:(NSUInteger)queueLength {
+    self = [super init];
+    if (self) {
+        _queue = queue;
+        _jobName = jobName;
+        _queueLengthWhenAdded = queueLength;
+
+        self.operation = operation;  // Call addObserver and setActivityThresholdAdjusted implicitly.
+    }
+    return self;
+}
 
 
 -(void)dealloc {
