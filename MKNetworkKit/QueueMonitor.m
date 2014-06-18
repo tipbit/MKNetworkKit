@@ -360,16 +360,22 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(void)setOperation:(NSOperation *)new_operation {
-    NSOperation* old_operation = _operation;
-    _operation = new_operation;
-    [old_operation removeObserver:self forKeyPath:@"isCancelled"];
-    [old_operation removeObserver:self forKeyPath:@"isExecuting"];
-    [old_operation removeObserver:self forKeyPath:@"isFinished"];
-    [new_operation addObserver:self forKeyPath:@"isCancelled" options:0 context:NULL];
-    [new_operation addObserver:self forKeyPath:@"isExecuting" options:0 context:NULL];
-    [new_operation addObserver:self forKeyPath:@"isFinished" options:0 context:NULL];
+    // This must be serialized, because otherwise we can be racing with two threads performing
+    // the removeObserver operations at the same time on the same object, or one trying to
+    // remove them before they have all been added.
+    // c.f. Crashlytics #679, #685.
+    @synchronized (self) {
+        NSOperation* old_operation = _operation;
+        _operation = new_operation;
+        [old_operation removeObserver:self forKeyPath:@"isCancelled"];
+        [old_operation removeObserver:self forKeyPath:@"isExecuting"];
+        [old_operation removeObserver:self forKeyPath:@"isFinished"];
+        [new_operation addObserver:self forKeyPath:@"isCancelled" options:0 context:NULL];
+        [new_operation addObserver:self forKeyPath:@"isExecuting" options:0 context:NULL];
+        [new_operation addObserver:self forKeyPath:@"isFinished" options:0 context:NULL];
 
-    self.activityThresholdAdjusted = getHideActivityIndicator(new_operation);
+        self.activityThresholdAdjusted = getHideActivityIndicator(new_operation);
+    }
 }
 
 
