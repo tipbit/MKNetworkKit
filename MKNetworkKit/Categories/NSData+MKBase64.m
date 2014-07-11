@@ -30,110 +30,10 @@ static unsigned char mk_base64EncodeLookup[65] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 //
-// Definition for "masked-out" areas of the base64DecodeLookup mapping
-//
-#define xx 65
-
-//
-// Mapping from ASCII character to 6 bit pattern.
-//
-static unsigned char mk_base64DecodeLookup[256] =
-{
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 62, xx, xx, xx, 63, 
-    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, xx, xx, xx, xx, xx, xx, 
-    xx,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, xx, xx, xx, xx, xx, 
-    xx, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
-    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-    xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, 
-};
-
-//
 // Fundamental sizes of the binary and base64 encode/decode units in bytes
 //
 #define BINARY_UNIT_SIZE 3
 #define BASE64_UNIT_SIZE 4
-
-//
-// NewBase64Decode
-//
-// Decodes the base64 ASCII string in the inputBuffer to a newly malloced
-// output buffer.
-//
-//  inputBuffer - the source ASCII string for the decode
-//	length - the length of the string or -1 (to specify strlen should be used)
-//	outputLength - if not-NULL, on output will contain the decoded length
-//
-// returns the decoded buffer. Must be free'd by caller. Length is given by
-//	outputLength.
-//
-void *mk_NewBase64Decode(
-	const char *inputBuffer,
-	size_t length,
-	size_t *outputLength)
-{
-	if (length == (size_t)-1)
-	{
-		length = strlen(inputBuffer);
-	}
-	
-	size_t outputBufferSize =
-		((length+BASE64_UNIT_SIZE-1) / BASE64_UNIT_SIZE) * BINARY_UNIT_SIZE;
-	unsigned char *outputBuffer = (unsigned char *)malloc(outputBufferSize);
-	
-	size_t i = 0;
-	size_t j = 0;
-	while (i < length)
-	{
-		//
-		// Accumulate 4 valid characters (ignore everything else)
-		//
-		unsigned char accumulated[BASE64_UNIT_SIZE];
-		size_t accumulateIndex = 0;
-		while (i < length)
-		{
-			unsigned char decode = mk_base64DecodeLookup[inputBuffer[i++]];
-			if (decode != xx)
-			{
-				accumulated[accumulateIndex] = decode;
-				accumulateIndex++;
-				
-				if (accumulateIndex == BASE64_UNIT_SIZE)
-				{
-					break;
-				}
-			}
-		}
-		
-		//
-		// Store the 6 bits from each of the 4 characters as 3 bytes
-		//
-		// (Uses improved bounds checking suggested by Alexandre Colucci)
-		//
-		if(accumulateIndex >= 2)  
-			outputBuffer[j] = (unsigned char)(accumulated[0] << 2) | (accumulated[1] >> 4);
-		if(accumulateIndex >= 3)  
-			outputBuffer[j + 1] = (unsigned char)(accumulated[1] << 4) | (accumulated[2] >> 2);
-		if(accumulateIndex >= 4)  
-			outputBuffer[j + 2] = (unsigned char)(accumulated[2] << 6) | accumulated[3];
-		j += accumulateIndex - 1;
-	}
-	
-	if (outputLength)
-	{
-		*outputLength = j;
-	}
-	return outputBuffer;
-}
 
 //
 // NewBase64Encode
@@ -151,7 +51,7 @@ void *mk_NewBase64Decode(
 // returns the encoded buffer. Must be free'd by caller. Length is given by
 //	outputLength.
 //
-char *mk_NewBase64Encode(
+static char *mk_NewBase64Encode(
 	const void *buffer,
 	size_t length,
 	bool separateLines,
@@ -265,27 +165,6 @@ char *mk_NewBase64Encode(
 @implementation NSData (MKNKBase64)
 
 //
-// dataFromBase64String:
-//
-// Creates an NSData object containing the base64 decoded representation of
-// the base64 string 'aString'
-//
-// Parameters:
-//    aString - the base64 string to decode
-//
-// returns the autoreleased NSData representation of the base64 string
-//
-+ (NSData *)dataFromBase64String:(NSString *)aString
-{
-	NSData *data = [aString dataUsingEncoding:NSASCIIStringEncoding];
-	size_t outputLength;
-	void *outputBuffer = mk_NewBase64Decode([data bytes], [data length], &outputLength);
-	NSData *result = [NSData dataWithBytes:outputBuffer length:outputLength];
-	free(outputBuffer);
-	return result;
-}
-
-//
 // base64EncodedString
 //
 // Creates an NSString object that contains the base 64 encoding of the
@@ -294,7 +173,7 @@ char *mk_NewBase64Encode(
 // returns an autoreleased NSString being the base 64 representation of the
 //	receiver.
 //
-- (NSString *)base64EncodedString
+- (NSString *)mk_base64EncodedString
 {
 	size_t outputLength = 0;
 	char *outputBuffer =
