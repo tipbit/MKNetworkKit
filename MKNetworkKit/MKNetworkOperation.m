@@ -1584,8 +1584,16 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
     if (myself == nil)
       return;
 
+    NSData * data = [self responseData];
+    if (data == nil) {
+      // NSJSONSerialization.JSONObjectWithData asserts that data is not nil.
+      DLog(@"JSON Parsing Error: data is nil.");
+      jsonDecompressionHandler(nil);
+      return;
+    }
+
     NSError *error = nil;
-    id returnValue = [NSJSONSerialization JSONObjectWithData:[self responseData] options:options error:&error];
+    id returnValue = [NSJSONSerialization JSONObjectWithData:data options:options error:&error];
     if(error) {
       
       DLog(@"JSON Parsing Error: %@", error);
