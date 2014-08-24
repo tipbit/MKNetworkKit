@@ -36,8 +36,11 @@ static CFHashCode caseInsensitiveHash (const void *value)
 
 @implementation NSDictionary (NSDictionaryCaseInsensitiveAdditions)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
 - (id)initWithDictionaryCaseInsensitive:(NSDictionary *)src
 {
+#pragma clang diagnostic pop
     CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
     keyCallbacks.equal = caseInsensitiveEqual;
     keyCallbacks.hash = caseInsensitiveHash;
