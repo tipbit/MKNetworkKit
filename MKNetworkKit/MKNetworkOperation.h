@@ -377,6 +377,17 @@ typedef enum {
  */
 @property (nonatomic, assign) BOOL hideActivityIndicator;
 
+
+/**
+ * NSHTTPCookie array.  If this is nil, the system cookie handling is used
+ * (i.e. NSURLRequest.HTTPShouldHandleCookies = YES). Otherwise, system cookie handling is disabled,
+ * and these cookies are used instead.  When the request completes, this field will be updated
+ * with the new cookies from the response.  You may want to save it so that you can put it on
+ * the next request for this service.
+ */
+@property (nonatomic) NSArray * cookies;
+
+
 #if TARGET_OS_IPHONE
 
 /*!

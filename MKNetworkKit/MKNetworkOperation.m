@@ -986,7 +986,15 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
       
       [self.request setHTTPBody:[self bodyData]];
     }
-    
+
+    if (self.cookies == nil) {
+      self.request.HTTPShouldHandleCookies = YES;
+    }
+    else {
+      self.request.HTTPShouldHandleCookies = NO;
+      [self addHeaders:[NSHTTPCookie requestHeaderFieldsWithCookies:self.cookies]];
+    }
+
     dispatch_async(dispatch_get_main_queue(), ^{
       MKNetworkOperation* myself = weakSelf;
       if (myself == nil)
@@ -1273,7 +1281,11 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
     [stream open];
   
   NSDictionary *httpHeaders = [NSDictionary dictionaryWithDictionaryCaseInsensitive:[self.response allHeaderFields]];
-  
+
+  if (self.cookies != nil) {
+    self.cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[self.response allHeaderFields] forURL:self.response.URL];
+  }
+
   // if you attach a stream to the operation, MKNetworkKit will not cache the response.
   // Streams are usually "big data chunks" that doesn't need caching anyways.
   
