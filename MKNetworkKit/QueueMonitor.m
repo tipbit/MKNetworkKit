@@ -251,7 +251,6 @@ static NSNumber* pendingNetworkActivity;
     NSUInteger n = self.queue.operationCount;
     if (n > self.queueLengthPeak)
         self.queueLengthPeak = n;
-    [[NSNotificationCenter defaultCenter] postNotificationName:kMKNetworkEngineOperationCountChanged object:@(n)];
     bool networkActivity = [QueueMonitor checkActivity];
 #if TARGET_OS_IPHONE
     dispatch_async(dispatch_get_main_queue(), ^{
