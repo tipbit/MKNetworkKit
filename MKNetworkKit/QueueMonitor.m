@@ -14,6 +14,10 @@
 // Warn if the queue length reaches this * queue.maxConcurrentCount.
 #define QUEUE_LENGTH_WARNING_MULTIPLIER 20
 
+// This is used for debugging a crash with the operationCount observer.  This is just a magic
+// constant so that we can see which observer has not been deregistered.
+#define OperationCountContext ((void *)0x43214321)
+
 
 @interface QueueMonitorJob ()
 
@@ -109,7 +113,7 @@ static NSNumber* pendingNetworkActivity;
         _isNetwork = isNetwork;
         _jobs_ = [NSMutableArray array];
 
-        [queue addObserver:self forKeyPath:@"operationCount" options:0 context:NULL];
+        [queue addObserver:self forKeyPath:@"operationCount" options:0 context:OperationCountContext];
 
         @synchronized (allMonitors) {
             [allMonitors addObject:self];
