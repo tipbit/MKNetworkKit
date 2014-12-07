@@ -438,4 +438,9 @@
  */
 @property (nonatomic, assign) BOOL shouldSendAcceptLanguageHeader;
 
+/**
+ * NSOperation array.  All the operations currently on the shared network queue.
+ */
+@property (nonatomic, readonly) NSArray * allOperations;
+
 @end

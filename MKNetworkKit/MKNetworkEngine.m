@@ -775,4 +775,10 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
   if(error) DLog(@"%@", error);
 }
 
+
++(NSArray *)allOperations {
+  return _sharedNetworkQueue.operations;
+}
+
+
 @end
