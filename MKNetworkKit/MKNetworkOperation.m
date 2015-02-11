@@ -1097,6 +1097,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,
 #pragma mark NSURLConnection delegates
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+  [[NSNotificationCenter defaultCenter] postNotificationName:kNetworkResponseFailed object:nil];
   
   [self updateStateForFinishedConnection:connection clearData:YES];
   [self operationFailedWithError:error];
@@ -1267,6 +1268,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+  [[NSNotificationCenter defaultCenter] postNotificationName:kNetworkResponsePassed object:nil];
   
   NSUInteger size = [self.response expectedContentLength] < 0 ? 0 : (NSUInteger)[self.response expectedContentLength];
   self.response = (NSHTTPURLResponse*) response;
@@ -1350,7 +1352,8 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-  
+  [[NSNotificationCenter defaultCenter] postNotificationName:kNetworkResponsePassed object:nil];
+
   if (self.downloadedDataSize == 0) {
     // This is the first batch of data
     // Check for a range header and make changes as neccesary
@@ -1389,6 +1392,7 @@ OSStatus extractIdentityAndTrust(CFDataRef inPKCS12Data,        // 5
 - (void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten
  totalBytesWritten:(NSInteger)totalBytesWritten
 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
+  [[NSNotificationCenter defaultCenter] postNotificationName:kNetworkResponsePassed object:nil];
   
   for(MKNKProgressBlock uploadProgressBlock in self.uploadProgressChangedHandlers) {
     
