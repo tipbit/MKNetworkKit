@@ -25,9 +25,6 @@
 
 @class MKNetworkOperation;
 
-#define kNetworkResponseFailed   @"NetworkResponseFailed"
-#define kNetworkResponsePassed   @"NetworkResponsePassed"
-
 typedef enum {
   MKNetworkOperationStateReady = 1,
   MKNetworkOperationStateExecuting = 2,
