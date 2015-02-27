@@ -48,6 +48,15 @@
 -(id)initWithArray:(NSMutableArray *)array isNetwork:(bool)isNetwork name:(NSString *)name;
 
 /**
+ * Stop monitoring the registered queue.  You should call this before
+ * releasing this instance, so that the KVO on the queue is deregistered.
+ * (It is not safe to just let dealloc do it, because we can't guarantee
+ * deallocation order if both the queue and this monitor are released
+ * in the same autoreleasepool context.
+ */
+-(void)deregisterQueue;
+
+/**
  * Add the given operation to this monitor, assuming that you've already added it to the queue.
  *
  * @param name May be nil, in which case the job will be marked <unnamed>.

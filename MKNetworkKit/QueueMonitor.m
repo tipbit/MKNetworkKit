@@ -45,7 +45,7 @@
 /**
  * The NSOperationQueue that is being monitored.
  */
-@property (nonatomic, weak, readonly) NSOperationQueue* queue;
+@property (nonatomic, weak) NSOperationQueue* queue;
 
 /**
  * The NSMutableArray that is being monitored.  This is an alternative to using NSOperationQueue; self.array and self.queue are mutually exclusive.
@@ -140,7 +140,14 @@ static NSNumber* pendingNetworkActivity;
 
 
 -(void)dealloc {
-    [_queue removeObserver:self forKeyPath:@"operationCount"];
+    assert(_queue == nil);  // You must call deregisterQueue before releasing this instance.
+}
+
+
+-(void)deregisterQueue {
+    NSOperationQueue * q = self.queue;
+    self.queue = nil;
+    [q removeObserver:self forKeyPath:@"operationCount"];
 }
 
 
