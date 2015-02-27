@@ -78,16 +78,14 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
 #pragma mark Initialization
 
 +(void) initialize {
-  
-  if(!_sharedNetworkQueue) {
-    static dispatch_once_t oncePredicate;
-    dispatch_once(&oncePredicate, ^{
-      _sharedNetworkQueue = [[NSOperationQueue alloc] init];
-      _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WIFI];
-      _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue isNetwork:true];
-    });
+  if (self.class != MKNetworkEngine.class) {
+    return;
   }
+
+  _sharedNetworkQueue = [[NSOperationQueue alloc] init];
+  _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
+  _sharedNetworkQueue.maxConcurrentOperationCount = MAX_CONCURRENT_CONNECTIONS_WIFI;
+  _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue isNetwork:true];
 }
 
 - (id) init {
