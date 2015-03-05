@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Tipbit. All rights reserved.
 //
 
+#import "NSOperation+ActivityIndicator.h"
 #import "NSOperationQueue+ActivityThreshold.h"
 
 #import "QueueMonitor.h"
@@ -410,6 +411,10 @@ static BOOL getHideActivityIndicator(NSOperation * op) {
     if ([op isKindOfClass:[MKNetworkOperation class]]) {
         MKNetworkOperation * netop = (MKNetworkOperation *)op;
         return netop.hideActivityIndicator;
+    }
+    else if ([op isKindOfClass:[NSOperation class]]) {
+        NSOperation * nsop = (NSOperation *)op;
+        return nsop.hideActivityIndicator;
     }
     else {
         return NO;

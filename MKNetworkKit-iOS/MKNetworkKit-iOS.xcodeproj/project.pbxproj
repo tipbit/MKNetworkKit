@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40175FEE1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 40175FED1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.m */; };
+		40175FEF1AA8DF52006B65B8 /* NSOperation+ActivityIndicator.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40175FEC1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.h */; };
 		407AAB2A1922037700247FFD /* NSOperationQueue+ActivityThreshold.m in Sources */ = {isa = PBXBuildFile; fileRef = 407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */; };
 		40AE14291880EE970037A600 /* QueueMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 40AE14281880EE970037A600 /* QueueMonitor.m */; };
 		40AE143E188110AD0037A600 /* QueueMonitor.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40AE14271880EE970037A600 /* QueueMonitor.h */; };
@@ -43,6 +45,7 @@
 			dstPath = "include/${PRODUCT_NAME}/Categories";
 			dstSubfolderSpec = 16;
 			files = (
+				40175FEF1AA8DF52006B65B8 /* NSOperation+ActivityIndicator.h in CopyFiles */,
 				40FBBE2C172DB65500AAD9CC /* NSDate+RFC1123.h in CopyFiles */,
 				40FBBE2D172DB65500AAD9CC /* NSData+MKBase64.h in CopyFiles */,
 				40FBBE2E172DB65500AAD9CC /* UIImageView+MKNetworkKitAdditions.h in CopyFiles */,
@@ -78,6 +81,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		40175FEC1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperation+ActivityIndicator.h"; sourceTree = "<group>"; };
+		40175FED1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperation+ActivityIndicator.m"; sourceTree = "<group>"; };
 		407AAB281922037700247FFD /* NSOperationQueue+ActivityThreshold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperationQueue+ActivityThreshold.h"; sourceTree = "<group>"; };
 		407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperationQueue+ActivityThreshold.m"; sourceTree = "<group>"; };
 		40AE14271880EE970037A600 /* QueueMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = QueueMonitor.h; path = ../../MKNetworkKit/QueueMonitor.h; sourceTree = "<group>"; };
@@ -191,6 +196,8 @@
 				ABB5C2AB148B3B360056D3E9 /* NSDictionary+RequestEncoding.m */,
 				8B97038A14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.h */,
 				8B97038B14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m */,
+				40175FEC1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.h */,
+				40175FED1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.m */,
 				407AAB281922037700247FFD /* NSOperationQueue+ActivityThreshold.h */,
 				407AAB291922037700247FFD /* NSOperationQueue+ActivityThreshold.m */,
 				ABB5C2AC148B3B360056D3E9 /* NSString+MKNetworkKitAdditions.h */,
@@ -278,6 +285,7 @@
 				AB3A3099148F0A3B00D06246 /* NSDate+RFC1123.m in Sources */,
 				ABE5A860165B5A34001F93EF /* NSData+MKBase64.m in Sources */,
 				ABFC7C8D16A92BE500386599 /* UIImageView+MKNetworkKitAdditions.m in Sources */,
+				40175FEE1AA8DAE9006B65B8 /* NSOperation+ActivityIndicator.m in Sources */,
 				8B97038D14BD7EC60047D1A2 /* NSDictionary+CaseInsensitive.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
