@@ -23,6 +23,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
+#import "NSOperationQueue+ActivityThreshold.h"
 #import "MKNetworkKit.h"
 #import "QueueMonitor.h"
 
@@ -84,7 +85,7 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
 
   _sharedNetworkQueue = [[NSOperationQueue alloc] init];
   _sharedNetworkQueue.name = @"MKNetworkEngine.sharedNetworkQueue";
-  _sharedNetworkQueue.maxConcurrentOperationCount = MAX_CONCURRENT_CONNECTIONS_WIFI;
+  _sharedNetworkQueue.baseMaxConcurrentOperationCount = @(MAX_CONCURRENT_CONNECTIONS_WIFI);
   _sharedNetworkQueueMonitor = [[QueueMonitor alloc] init:_sharedNetworkQueue isNetwork:true];
 }
 
@@ -194,17 +195,17 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
   switch (networkStatus) {
     case ReachableViaWiFi:
       DLog(@"Server [%@] is reachable via Wifi", self.hostName);
-      [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WIFI];
+      _sharedNetworkQueue.baseMaxConcurrentOperationCount = @(MAX_CONCURRENT_CONNECTIONS_WIFI);
       [self checkAndRestoreFrozenOperations];
       break;
 
     case ReachableViaWWAN:
       if(self.wifiOnlyMode) {
         DLog(@" Disabling engine as server [%@] is reachable only via cellular data.", self.hostName);
-        [_sharedNetworkQueue setMaxConcurrentOperationCount:0];
+        _sharedNetworkQueue.baseMaxConcurrentOperationCount = @0;
       } else {
         DLog(@"Server [%@] is reachable only via cellular data", self.hostName);
-        [_sharedNetworkQueue setMaxConcurrentOperationCount:MAX_CONCURRENT_CONNECTIONS_WWAN];
+        _sharedNetworkQueue.baseMaxConcurrentOperationCount = @(MAX_CONCURRENT_CONNECTIONS_WWAN);
         [self checkAndRestoreFrozenOperations];
       }
       break;

@@ -17,4 +17,6 @@
  */
 @property (nonatomic, assign) NSUInteger activityThreshold;
 
+@property (nonatomic) NSNumber * baseMaxConcurrentOperationCount;
+
 @end
