@@ -649,6 +649,14 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
 
 -(void) saveCacheData:(NSData*) data forKey:(NSString*) cacheDataKey
 {
+  if (cacheDataKey == nil || data == nil) {
+#if DEBUG
+    // See comment below.
+    assert(cacheDataKey != nil);
+    assert(data != nil);
+#endif
+    return;
+  }
   MKNetworkEngine* __weak weakSelf = self;
   dispatch_async(self.backgroundCacheQueue, ^{
     [weakSelf saveCacheDataBackground:data forKey:cacheDataKey];
@@ -656,6 +664,15 @@ static QueueMonitor* _sharedNetworkQueueMonitor;
 }
 
 -(void) saveCacheDataBackground:(NSData*) data forKey:(NSString *)cacheDataKey {
+  if (cacheDataKey == nil || data == nil) {
+#if DEBUG
+    // We see a very occasional crash here (inserting nil data into self.memoryCache just below).
+    // No idea why.  These asserts will help us catch it.
+    assert(cacheDataKey != nil);
+    assert(data != nil);
+#endif
+    return;
+  }
   (self.memoryCache)[cacheDataKey] = data;
 
   NSUInteger index = [self.memoryCacheKeys indexOfObject:cacheDataKey];
