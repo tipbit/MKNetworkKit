@@ -246,8 +246,20 @@ static NSNumber* pendingNetworkActivity;
     @synchronized (self.jobs_) {
         [self.jobs_ insertObject:job atIndex:0];
         NSUInteger cap = job.queueLengthWhenAdded + 50;
-        if (self.jobs_.count > cap)
-            [self.jobs_ removeObjectsInRange:NSMakeRange(cap, self.jobs_.count - cap)];
+        if (self.jobs_.count > cap) {
+            NSUInteger needToRemove = cap - self.jobs_.count;
+            NSMutableIndexSet * toRemove = [NSMutableIndexSet indexSet];
+            for (NSUInteger i = self.jobs_.count - 1; i > 0; i--) {
+                QueueMonitorJob * job = self.jobs_[i];
+                if (job.isFinished) {
+                    [toRemove addIndex:i];
+                    if (toRemove.count >= needToRemove) {
+                        break;
+                    }
+                }
+            }
+            [self.jobs_ removeObjectsAtIndexes:toRemove];
+        }
     }
 }
 
